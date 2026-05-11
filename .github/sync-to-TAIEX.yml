@@ -1,0 +1,9 @@
+# .github/sync-to-TAIEX.yml
+group:
+  - files:
+      - source: data/reports/yahoo_finance_summary_latest.csv
+        dest:   data/forecast/yahoo_finance_summary_latest.csv
+      - source: raw_column_definition.md
+        dest:   definitions/raw_column_definition_YahooFinance.md
+    repos: |
+      wenchiehlee-investment/TAIEX.TW

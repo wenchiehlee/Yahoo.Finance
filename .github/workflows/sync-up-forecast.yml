@@ -1,0 +1,38 @@
+name: Sync Forecast Summary Downstream
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - data/reports/yahoo_finance_summary_latest.csv
+      - raw_column_definition.md
+      - .github/sync-to-biztrends.yml
+      - .github/sync-to-TAIEX.yml
+      - .github/workflows/sync-up-forecast.yml
+
+concurrency:
+  group: sync-yahoo-forecast
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sync to biztrends.TW
+        uses: BetaHuhn/repo-file-sync-action@v1
+        with:
+          GH_PAT: ${{ secrets.REPO_FILE_SYNC_WENCHIEHLEE_MONEY }}
+          CONFIG_PATH: .github/sync-to-biztrends.yml
+          COMMIT_EACH_FILE: false
+          PR_LABELS: "automated-sync"
+          SKIP_PR: true
+      - name: Sync to TAIEX.TW
+        uses: BetaHuhn/repo-file-sync-action@v1
+        with:
+          GH_PAT: ${{ secrets.REPO_FILE_SYNC_WENCHIEHLEE_INVESTMENT }}
+          CONFIG_PATH: .github/sync-to-TAIEX.yml
+          COMMIT_EACH_FILE: false
+          PR_LABELS: "automated-sync"
+          SKIP_PR: true

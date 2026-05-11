@@ -1,0 +1,29 @@
+name: Sync to Analyzer
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - data/reports/raw_yahoo_finance.csv
+      - raw_column_definition.md
+      - .github/sync-to-Analyzer.yml
+      - .github/workflows/sync-up-Analyzer.yml
+
+concurrency:
+  group: sync-yahoo-analyzer
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sync to Analyzer
+        uses: BetaHuhn/repo-file-sync-action@v1
+        with:
+          GH_PAT: ${{ secrets.REPO_FILE_SYNC_WENCHIEHLEE_INVESTMENT }}
+          CONFIG_PATH: .github/sync-to-Analyzer.yml
+          COMMIT_EACH_FILE: false
+          PR_LABELS: "automated-sync"
+          SKIP_PR: true

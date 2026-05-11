@@ -1,0 +1,70 @@
+name: Daily Yahoo Finance Fetch
+
+on:
+  schedule:
+    - cron: "30 19 * * *"
+  workflow_dispatch:
+    inputs:
+      market:
+        description: "Market to fetch"
+        required: false
+        default: "all"
+        type: choice
+        options: [all, tw, us]
+      tw_list:
+        description: "Taiwan list to use"
+        required: false
+        default: "all"
+        type: choice
+        options: [all, focus]
+      specific_symbols:
+        description: "Optional comma-separated symbols, e.g. 2330,2454,NVDA"
+        required: false
+        default: ""
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Update Taiwan stock lists
+        run: python Get觀察名單.py
+
+      - name: Validate synced inputs
+        run: |
+          test -f raw_conceptstock_company_metadata.csv || echo "::warning::raw_conceptstock_company_metadata.csv missing; US fetch will be empty"
+          test -f data/reports/raw_factset_detailed_report.csv || echo "::warning::raw_factset_detailed_report.csv missing; summary cross-check will be marked missing_factset_source"
+
+      - name: Fetch Yahoo Finance analysis
+        run: |
+          MARKET="${{ github.event.inputs.market || 'all' }}"
+          TW_LIST="${{ github.event.inputs.tw_list || 'all' }}"
+          SYMBOLS="${{ github.event.inputs.specific_symbols || '' }}"
+          python fetch_group/fetch_cli.py --market "$MARKET" --tw-list "$TW_LIST" --specific-symbols "$SYMBOLS"
+
+      - name: Generate forecast summary
+        run: python process_group/process_cli.py
+
+      - name: Commit generated reports
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add StockID_TWSE_TPEX.csv StockID_TWSE_TPEX_focus.csv data/reports/raw_yahoo_finance.csv data/reports/yahoo_finance_summary_latest.csv
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update Yahoo Finance forecasts ($(date -u +%Y-%m-%d))"
+            git push
+          fi

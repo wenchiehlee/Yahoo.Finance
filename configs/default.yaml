@@ -1,0 +1,18 @@
+input:
+  tw_all_list: StockID_TWSE_TPEX.csv
+  tw_focus_list: StockID_TWSE_TPEX_focus.csv
+  us_metadata: raw_conceptstock_company_metadata.csv
+
+output:
+  raw_csv: data/reports/raw_yahoo_finance.csv
+  summary_csv: data/reports/yahoo_finance_summary_latest.csv
+
+yahoo:
+  source_url_template: "https://hk.finance.yahoo.com/quote/{yahoo_symbol}/analysis/"
+  taiwan_default_suffix: ".TW"
+  taiwan_fallback_suffix: ".TWO"
+  rate_limit_seconds: 1.0
+
+cross_check:
+  factset_report: data/reports/raw_factset_detailed_report.csv
+  large_diff_pct_threshold: 0.20
