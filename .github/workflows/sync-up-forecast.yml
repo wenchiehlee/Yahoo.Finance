@@ -20,7 +20,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SYNC_PAT_MONEY: ${{ secrets.REPO_FILE_SYNC_WENCHIEHLEE_MONEY }}
-      SYNC_PAT_INVESTMENT: ${{ secrets.REPO_FILE_SYNC_WENCHIEHLEE_INVESTMENT }}
     steps:
       - uses: actions/checkout@v4
       - name: Sync to biztrends.TW
@@ -33,11 +32,11 @@ jobs:
           PR_LABELS: "automated-sync"
           SKIP_PR: true
       - name: Sync to TAIEX.TW
-        if: env.SYNC_PAT_INVESTMENT != ''
+        if: env.SYNC_PAT_MONEY != ''
         continue-on-error: true
         uses: BetaHuhn/repo-file-sync-action@v1
         with:
-          GH_PAT: ${{ env.SYNC_PAT_INVESTMENT }}
+          GH_PAT: ${{ env.SYNC_PAT_MONEY }}
           CONFIG_PATH: .github/sync-to-TAIEX.yml
           COMMIT_EACH_FILE: false
           PR_LABELS: "automated-sync"
@@ -46,5 +45,5 @@ jobs:
         if: env.SYNC_PAT_MONEY == ''
         run: echo "::warning::REPO_FILE_SYNC_WENCHIEHLEE_MONEY is not configured; skipping biztrends.TW sync."
       - name: Skip TAIEX sync notice
-        if: env.SYNC_PAT_INVESTMENT == ''
-        run: echo "::warning::REPO_FILE_SYNC_WENCHIEHLEE_INVESTMENT is not configured; skipping TAIEX.TW sync."
+        if: env.SYNC_PAT_MONEY == ''
+        run: echo "::warning::REPO_FILE_SYNC_WENCHIEHLEE_MONEY is not configured; skipping TAIEX.TW sync."

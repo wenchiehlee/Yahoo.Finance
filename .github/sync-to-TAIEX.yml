@@ -6,4 +6,4 @@ group:
       - source: raw_column_definition.md
         dest:   definitions/raw_column_definition_YahooFinance.md
     repos: |
-      wenchiehlee-investment/TAIEX.TW
+      wenchiehlee-money/TAIEX.TW
