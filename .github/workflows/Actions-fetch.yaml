@@ -3,6 +3,14 @@ name: Daily Yahoo Finance Fetch
 on:
   schedule:
     - cron: "30 19 * * *"
+  push:
+    branches: [main]
+    paths:
+      - configs/default.yaml
+      - fetch_group/**
+      - process_group/**
+      - requirements.txt
+      - .github/workflows/Actions-fetch.yaml
   workflow_dispatch:
     inputs:
       market:
@@ -49,9 +57,15 @@ jobs:
 
       - name: Fetch Yahoo Finance analysis
         run: |
-          MARKET="${{ github.event.inputs.market || 'all' }}"
-          TW_LIST="${{ github.event.inputs.tw_list || 'all' }}"
-          SYMBOLS="${{ github.event.inputs.specific_symbols || '' }}"
+          if [ "${{ github.event_name }}" = "push" ]; then
+            MARKET="all"
+            TW_LIST="all"
+            SYMBOLS="2330,NVDA"
+          else
+            MARKET="${{ github.event.inputs.market || 'all' }}"
+            TW_LIST="${{ github.event.inputs.tw_list || 'all' }}"
+            SYMBOLS="${{ github.event.inputs.specific_symbols || '' }}"
+          fi
           python fetch_group/fetch_cli.py --market "$MARKET" --tw-list "$TW_LIST" --specific-symbols "$SYMBOLS"
 
       - name: Generate forecast summary
