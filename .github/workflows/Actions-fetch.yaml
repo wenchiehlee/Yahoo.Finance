@@ -58,7 +58,7 @@ jobs:
 
       - name: Validate synced inputs
         run: |
-          test -f raw_conceptstock_company_metadata.csv || echo "::warning::raw_conceptstock_company_metadata.csv missing; US fetch will be empty"
+          test -f data/conceptstocks_raw/raw_conceptstock_company_metadata.csv || echo "::warning::data/conceptstocks_raw/raw_conceptstock_company_metadata.csv missing; US fetch will be empty"
           test -f data/reports/raw_factset_detailed_report.csv || echo "::warning::raw_factset_detailed_report.csv missing; summary cross-check will be marked missing_factset_source"
 
       - name: Fetch Yahoo Finance analysis

@@ -10,7 +10,7 @@ destination: downstream definitions/raw_column_definition_YahooFinance.md
 **Source:** `data/stage1_raw/raw_yahoo_finance.csv`
 **Data Source:** Yahoo Finance HK analysis page via yfinance
 **Update Frequency:** Daily automated updates
-**Extraction Strategy:** Fetch structured yfinance analyst analysis tables and normalize them into long format. `source_url` points to the human-readable Yahoo HK analysis page.
+**Extraction Strategy:** Fetch structured yfinance analyst analysis tables and normalize them into long format. `source_url` points to the human-readable Yahoo HK analysis page. US ticker universe is read from `data/conceptstocks_raw/raw_conceptstock_company_metadata.csv`, synced from ConceptStocks.
 
 ### Section Mapping
 
