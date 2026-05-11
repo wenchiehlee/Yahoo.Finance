@@ -35,6 +35,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      SYNC_PAT_ANALYZER: ${{ secrets.REPO_FILE_SYNC_WENCHIEHLEE_INVESTMENT }}
+      SYNC_PAT_BIZTRENDS: ${{ secrets.REPO_FILE_SYNC_WENCHIEHLEE_MONEY }}
+      SYNC_PAT_TAIEX: ${{ secrets.REPO_FILE_SYNC_WENCHIEHLEE_INVESTMENT }}
     timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
@@ -83,4 +87,43 @@ jobs:
           else
             git commit -m "chore: update Yahoo Finance forecasts ($(date -u +%Y-%m-%d))"
             git push
+          fi
+
+      - name: Sync raw Yahoo report to Analyzer
+        if: env.SYNC_PAT_ANALYZER != ''
+        uses: BetaHuhn/repo-file-sync-action@v1
+        with:
+          GH_PAT: ${{ env.SYNC_PAT_ANALYZER }}
+          CONFIG_PATH: .github/sync-to-Analyzer.yml
+          COMMIT_EACH_FILE: false
+          PR_LABELS: "automated-sync"
+          SKIP_PR: true
+
+      - name: Sync forecast summary to biztrends.TW
+        if: env.SYNC_PAT_BIZTRENDS != ''
+        uses: BetaHuhn/repo-file-sync-action@v1
+        with:
+          GH_PAT: ${{ env.SYNC_PAT_BIZTRENDS }}
+          CONFIG_PATH: .github/sync-to-biztrends.yml
+          COMMIT_EACH_FILE: false
+          PR_LABELS: "automated-sync"
+          SKIP_PR: true
+
+      - name: Sync forecast summary to TAIEX.TW
+        if: env.SYNC_PAT_TAIEX != ''
+        uses: BetaHuhn/repo-file-sync-action@v1
+        with:
+          GH_PAT: ${{ env.SYNC_PAT_TAIEX }}
+          CONFIG_PATH: .github/sync-to-TAIEX.yml
+          COMMIT_EACH_FILE: false
+          PR_LABELS: "automated-sync"
+          SKIP_PR: true
+
+      - name: Sync skip notices
+        run: |
+          if [ -z "$SYNC_PAT_ANALYZER" ]; then
+            echo "::warning::REPO_FILE_SYNC_WENCHIEHLEE_INVESTMENT is not configured; skipping Analyzer/TAIEX sync."
+          fi
+          if [ -z "$SYNC_PAT_BIZTRENDS" ]; then
+            echo "::warning::REPO_FILE_SYNC_WENCHIEHLEE_MONEY is not configured; skipping biztrends.TW sync."
           fi
