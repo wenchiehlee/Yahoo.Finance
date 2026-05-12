@@ -67,17 +67,27 @@ jobs:
             MARKET="all"
             TW_LIST="all"
             SYMBOLS="2330,NVDA"
+            RAW_OUTPUT="data/reports/raw_yahoo_finance_smoke.csv"
           else
             MARKET="${{ github.event.inputs.market || 'all' }}"
             TW_LIST="${{ github.event.inputs.tw_list || 'all' }}"
             SYMBOLS="${{ github.event.inputs.specific_symbols || '' }}"
+            RAW_OUTPUT="data/reports/raw_yahoo_finance.csv"
           fi
-          python fetch_group/fetch_cli.py --market "$MARKET" --tw-list "$TW_LIST" --specific-symbols "$SYMBOLS"
+          echo "RAW_OUTPUT=$RAW_OUTPUT" >> "$GITHUB_ENV"
+          python fetch_group/fetch_cli.py --market "$MARKET" --tw-list "$TW_LIST" --specific-symbols "$SYMBOLS" --output-csv "$RAW_OUTPUT"
 
       - name: Generate forecast summary
-        run: python process_group/process_cli.py
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            SUMMARY_OUTPUT="data/reports/yahoo_finance_summary_smoke.csv"
+          else
+            SUMMARY_OUTPUT="data/reports/yahoo_finance_summary_latest.csv"
+          fi
+          python process_group/process_cli.py --raw-csv "$RAW_OUTPUT" --output-csv "$SUMMARY_OUTPUT"
 
       - name: Commit generated reports
+        if: github.event_name != 'push'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -91,7 +101,7 @@ jobs:
 
       - name: Sync raw Yahoo report to Analyzer
         # Runs only when the repo has the cross-repo sync PAT configured.
-        if: env.SYNC_PAT_ANALYZER != ''
+        if: github.event_name != 'push' && env.SYNC_PAT_ANALYZER != ''
         uses: BetaHuhn/repo-file-sync-action@v1
         with:
           GH_PAT: ${{ env.SYNC_PAT_ANALYZER }}
@@ -101,7 +111,7 @@ jobs:
           SKIP_PR: true
 
       - name: Sync forecast summary to biztrends.TW
-        if: env.SYNC_PAT_BIZTRENDS != ''
+        if: github.event_name != 'push' && env.SYNC_PAT_BIZTRENDS != ''
         uses: BetaHuhn/repo-file-sync-action@v1
         with:
           GH_PAT: ${{ env.SYNC_PAT_BIZTRENDS }}
@@ -111,7 +121,7 @@ jobs:
           SKIP_PR: true
 
       - name: Sync forecast summary to TAIEX.TW
-        if: env.SYNC_PAT_TAIEX != ''
+        if: github.event_name != 'push' && env.SYNC_PAT_TAIEX != ''
         continue-on-error: true
         uses: BetaHuhn/repo-file-sync-action@v1
         with:
