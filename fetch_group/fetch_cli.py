@@ -13,10 +13,14 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
 import yaml
+from dotenv import load_dotenv
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
+
+# Load environment variables from .env file
+load_dotenv(REPO_ROOT / ".env")
 
 from fetch_group.yahoo_client import YahooFinanceClient
 

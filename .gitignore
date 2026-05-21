@@ -1,0 +1,12 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+.vscode/
+data/reports/raw_yahoo_finance.csv
+data/reports/raw_yahoo_finance_summary_latest.csv
+
+.env*
+
+# Gemini CLI safety audit
+.claude/

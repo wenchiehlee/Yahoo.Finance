@@ -1,11 +1,11 @@
 input:
   tw_all_list: StockID_TWSE_TPEX.csv
   tw_focus_list: StockID_TWSE_TPEX_focus.csv
-  us_metadata: data/conceptstocks_raw/raw_conceptstock_company_metadata.csv
+  us_metadata: data/ConceptStocks/raw_conceptstock_company_metadata.csv
 
 output:
   raw_csv: data/reports/raw_yahoo_finance.csv
-  summary_csv: data/reports/yahoo_finance_summary_latest.csv
+  summary_csv: data/reports/raw_yahoo_finance_summary_latest.csv
 
 yahoo:
   source_url_template: "https://hk.finance.yahoo.com/quote/{yahoo_symbol}/analysis/"
