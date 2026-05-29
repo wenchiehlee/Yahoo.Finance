@@ -5,12 +5,6 @@ on:
     - cron: "30 19 * * *"
   push:
     branches: [main]
-    paths:
-      - configs/default.yaml
-      - fetch_group/**
-      - process_group/**
-      - requirements.txt
-      - .github/workflows/Actions-fetch.yaml
   workflow_dispatch:
     inputs:
       market:
