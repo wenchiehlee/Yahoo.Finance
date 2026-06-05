@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - data/reports/raw_yahoo_finance_summary_latest.csv
+      - data/reports/raw_yahoo_finance.csv
       - raw_column_definition.md
       - .github/sync-to-biztrends.yml
       - .github/sync-to-TAIEX.yml
