@@ -142,7 +142,7 @@ destination: https://raw.githubusercontent.com/wenchiehlee-investment/Python-Act
 | `revenue` | float | Segment revenue (USD) | Manual | Raw value in USD |
 | `source` | string | Source filing | Manual | e.g., `10-K` |
 | `notes` | string | Manual override rationale | Manual | Free text |
-| `updated_timestamp` | datetime | Manual row update timestamp | Manual/System | UTC `YYYY-MM-DD HH:MM:SS` |
+| `updated_timestamp` | datetime | Manual row update timestamp | Manual/System | CST `YYYY-MM-DD HH:MM:SS CST` |
 
 ---
 
@@ -162,5 +162,5 @@ destination: https://raw.githubusercontent.com/wenchiehlee-investment/Python-Act
 | `最新財報` | string | Latest released fiscal report | Metadata | e.g., `FY2026 Q3` |
 | `發布時間` | string | Expected release timing | Metadata | e.g., `2026年4月` |
 | `產品區段` | string | Product segment summary | Metadata | Free text |
-| `download_timestamp` | datetime | Source metadata retrieval timestamp | System | UTC `YYYY-MM-DD HH:MM:SS` |
-| `process_timestamp` | datetime | CSV generation timestamp | System | UTC `YYYY-MM-DD HH:MM:SS` |
+| `download_timestamp` | datetime | Source metadata retrieval timestamp | System | CST `YYYY-MM-DD HH:MM:SS CST` |
+| `process_timestamp` | datetime | CSV generation timestamp | System | CST `YYYY-MM-DD HH:MM:SS CST` |
