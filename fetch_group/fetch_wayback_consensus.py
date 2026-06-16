@@ -256,14 +256,37 @@ def main():
         code = t["code"]
         name = t["name"]
         yahoo_symbol = f"{code}{suffix}"
-        url = f"https://hk.finance.yahoo.com/quote/{yahoo_symbol}/analysis/"
+        
+        candidate_urls = [
+            f"https://finance.yahoo.com/quote/{yahoo_symbol}/analysis",
+            f"https://hk.finance.yahoo.com/quote/{yahoo_symbol}/analysis",
+            f"https://sg.finance.yahoo.com/quote/{yahoo_symbol}/analysis"
+        ]
         
         print(f"\n=======================================================")
         print(f"Target: {code} ({name}) - Yahoo Symbol: {yahoo_symbol}")
-        print(f"Querying snapshots on Wayback Machine...")
+        print(f"Querying snapshots on Wayback Machine for multiple domains...")
         
-        snapshots = fetch_wayback_snapshots(url, limit_months=24)
-        print(f"Found {len(snapshots)} monthly snapshots.")
+        all_snapshots = []
+        for url in candidate_urls:
+            print(f"  Querying: {url}")
+            snaps = fetch_wayback_snapshots(url, limit_months=48)
+            print(f"    Found {len(snaps)} snapshots.")
+            all_snapshots.extend(snaps)
+            time.sleep(1.0)  # gap between CDX calls
+            
+        # Deduplicate snapshots by Year-Month (timestamp[:6])
+        monthly_snaps = {}
+        for snap in all_snapshots:
+            ts = snap["timestamp"]
+            ym = ts[:6]
+            # Keep the latest snapshot timestamp for the same month
+            if ym not in monthly_snaps or ts > monthly_snaps[ym]["timestamp"]:
+                monthly_snaps[ym] = snap
+                
+        snapshots = sorted(list(monthly_snaps.values()), key=lambda x: x["timestamp"])
+        snapshots = snapshots[-48:]  # Limit to most recent 48 months
+        print(f"Total unique monthly snapshots after merging: {len(snapshots)}")
         
         for idx, snap in enumerate(snapshots, 1):
             ts = snap["timestamp"]
