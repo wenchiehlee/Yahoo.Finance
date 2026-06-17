@@ -11,7 +11,7 @@ from datetime import datetime
 import requests
 
 
-BASE_URL = "https://raw.githubusercontent.com/wenchiehlee/GoPublic/refs/heads/main"
+BASE_URL = "https://raw.githubusercontent.com/wenchiehlee/Selenium-Actions.Auction/refs/heads/main"
 
 
 def download_file(url, output_file, description, add_taiex=False):
