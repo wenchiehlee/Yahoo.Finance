@@ -263,7 +263,35 @@ def main():
         suffix = config["yahoo"].get("taiwan_default_suffix", ".TW")
         
     os.makedirs(os.path.dirname(OUTPUT_CSV), exist_ok=True)
-    
+
+    # -------------------------------------------------------
+    # Load existing history to build coverage matrix
+    # Only download months that are NOT already covered
+    # -------------------------------------------------------
+    biztrends_target_csv = os.path.abspath(os.path.join(
+        REPO_ROOT, "..", "biztrends.TW", "data", "Yahoo.Finance", "raw_yahoo_finance_consensus_history.csv"
+    ))
+    already_covered = set()  # set of (stock_code, "YYYYMM") that already have valid consensus data
+    CONSENSUS_COLS = ["earnings_0y_avg", "revenue_0y_avg", "earnings_0q_avg", "revenue_0q_avg"]
+    if os.path.exists(biztrends_target_csv):
+        try:
+            df_hist = pd.read_csv(biztrends_target_csv, encoding="utf-8")
+            df_hist["stock_code"] = df_hist["stock_code"].astype(str).str.strip()
+            df_hist["_ym"] = pd.to_datetime(df_hist["forecast_asof_date"]).dt.strftime("%Y%m")
+            for _, row in df_hist.iterrows():
+                # Only mark as covered if at least one consensus column has a valid value
+                has_value = any(
+                    col in df_hist.columns and pd.notna(row.get(col)) and str(row.get(col)).strip() not in ["", "nan", "NaN"]
+                    for col in CONSENSUS_COLS
+                )
+                if has_value:
+                    already_covered.add((row["stock_code"], row["_ym"]))
+            print(f"Loaded coverage matrix: {len(already_covered)} already-covered (stock, month) pairs.")
+        except Exception as e:
+            print(f"Warning: Failed to load existing history for gap analysis: {e}")
+    else:
+        print("No existing history found — will fetch all available snapshots.")
+
     all_records = []
     
     for t in targets:
@@ -304,9 +332,16 @@ def main():
         
         for idx, snap in enumerate(snapshots, 1):
             ts = snap["timestamp"]
+            snap_ym = ts[:6]  # YYYYMM
             # Convert timestamp to date YYYY-MM-DD
             asof_date = f"{ts[:4]}-{ts[4:6]}-{ts[6:8]}"
-            print(f"  [{idx}/{len(snapshots)}] Downloading snapshot as of {asof_date}...")
+
+            # ---- Matrix-driven skip: already covered? ----
+            if (code, snap_ym) in already_covered:
+                print(f"  [{idx}/{len(snapshots)}] {asof_date} already covered ✅ — skipping download.")
+                continue
+
+            print(f"  [{idx}/{len(snapshots)}] Downloading snapshot as of {asof_date} (gap to fill)...")
             
             html = download_html(ts, snap["original"])
             if not html:
