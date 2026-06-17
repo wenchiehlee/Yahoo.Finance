@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Fetch historical Yahoo Finance analyst analysis from Wayback Machine and compile it."""
+"""Fetch historical Yahoo Finance analyst consensus from Wayback Machine and compile it.
+
+Usage:
+  python fetch_group/fetch_wayback_consensus.py             # daily run (12-month lookback)
+  python fetch_group/fetch_wayback_consensus.py --backfill  # one-time deep backfill (48 months)
+"""
 
 import os
 import sys
@@ -10,6 +15,7 @@ import datetime
 import urllib.parse
 import urllib.request
 import json
+import argparse
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -239,9 +245,17 @@ def parse_consensus_from_html(html_text):
     return result
 
 def main():
+    parser = argparse.ArgumentParser(description="Fetch Wayback Machine Yahoo Finance consensus")
+    parser.add_argument("--backfill", action="store_true", help="Deep backfill mode: query up to 48 months (slow)")
+    parser.add_argument("--limit-months", type=int, default=None, help="Override lookback window in months")
+    args = parser.parse_args()
+
+    limit_months = args.limit_months if args.limit_months else (48 if args.backfill else 14)
+
     config = load_config()
     targets = load_focus_stocks()
-    targets = [t for t in targets if t["code"] in ["2330", "2357", "2382", "2480"]]
+    # Skip TAIEX index (0000) - no analyst coverage on Yahoo Finance
+    targets = [t for t in targets if t["code"] not in ["0000", "加權指數"]]
     
     # Determine default suffix
     suffix = ".TW"
@@ -270,7 +284,7 @@ def main():
         all_snapshots = []
         for url in candidate_urls:
             print(f"  Querying: {url}")
-            snaps = fetch_wayback_snapshots(url, limit_months=48)
+            snaps = fetch_wayback_snapshots(url, limit_months=limit_months)
             print(f"    Found {len(snaps)} snapshots.")
             all_snapshots.extend(snaps)
             time.sleep(1.0)  # gap between CDX calls
@@ -285,7 +299,7 @@ def main():
                 monthly_snaps[ym] = snap
                 
         snapshots = sorted(list(monthly_snaps.values()), key=lambda x: x["timestamp"])
-        snapshots = snapshots[-48:]  # Limit to most recent 48 months
+        snapshots = snapshots[-limit_months:]  # Limit to configured window
         print(f"Total unique monthly snapshots after merging: {len(snapshots)}")
         
         for idx, snap in enumerate(snapshots, 1):
