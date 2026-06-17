@@ -26,7 +26,7 @@ sys.stdout.reconfigure(encoding='utf-8')
 # Paths
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = os.path.join(REPO_ROOT, "configs", "default.yaml")
-STOCK_LIST_PATH = os.path.join(REPO_ROOT, "StockID_TWSE_TPEX_focus.csv")
+STOCK_LIST_PATH = os.path.join(REPO_ROOT, "StockID_TWSE_TPEX.csv")
 OUTPUT_CSV = os.path.join(REPO_ROOT, "data", "reports", "wayback_yahoo_finance_consensus.csv")
 
 def load_config():
@@ -36,7 +36,7 @@ def load_config():
     with open(CONFIG_PATH, encoding="utf-8") as f:
         return yaml.safe_load(f)
 
-def load_focus_stocks():
+def load_stocks():
     targets = []
     if os.path.exists(STOCK_LIST_PATH):
         with open(STOCK_LIST_PATH, encoding="utf-8-sig", newline="") as f:
@@ -253,7 +253,7 @@ def main():
     limit_months = args.limit_months if args.limit_months else (48 if args.backfill else 14)
 
     config = load_config()
-    targets = load_focus_stocks()
+    targets = load_stocks()
     # Skip TAIEX index (0000) - no analyst coverage on Yahoo Finance
     targets = [t for t in targets if t["code"] not in ["0000", "加權指數"]]
     
