@@ -25,9 +25,10 @@ sys.stdout.reconfigure(encoding='utf-8')
 
 # Paths
 REPO_ROOT = Path(__file__).resolve().parents[1]
-CONFIG_PATH = os.path.join(REPO_ROOT, "configs", "default.yaml")
-STOCK_LIST_PATH = os.path.join(REPO_ROOT, "StockID_TWSE_TPEX.csv")
-OUTPUT_CSV = os.path.join(REPO_ROOT, "data", "reports", "wayback_yahoo_finance_consensus.csv")
+CONFIG_PATH        = os.path.join(REPO_ROOT, "configs", "default.yaml")
+STOCK_LIST_PATH    = os.path.join(REPO_ROOT, "StockID_TWSE_TPEX.csv")
+FOCUS_LIST_PATH    = os.path.join(REPO_ROOT, "StockID_TWSE_TPEX_focus.csv")
+OUTPUT_CSV         = os.path.join(REPO_ROOT, "data", "reports", "wayback_yahoo_finance_consensus.csv")
 
 def load_config():
     if not os.path.exists(CONFIG_PATH):
@@ -36,24 +37,48 @@ def load_config():
     with open(CONFIG_PATH, encoding="utf-8") as f:
         return yaml.safe_load(f)
 
-def load_stocks():
-    targets = []
-    if os.path.exists(STOCK_LIST_PATH):
-        with open(STOCK_LIST_PATH, encoding="utf-8-sig", newline="") as f:
+def _read_csv_codes(path: str) -> list[dict]:
+    """Read stock list CSV, return list of {code, name}."""
+    rows = []
+    if os.path.exists(path):
+        with open(path, encoding="utf-8-sig", newline="") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 code = (row.get("代號") or "").strip()
                 name = (row.get("名稱") or "").strip()
                 if code:
-                    targets.append({"code": code, "name": name})
-    if not targets:
-        targets = [
+                    rows.append({"code": code, "name": name})
+    return rows
+
+
+def load_stocks() -> list[dict]:
+    """Load all stocks with priority ordering.
+
+    Returns focus stocks FIRST (is_focus=True), then the remaining
+    stocks from the full list (is_focus=False).  Focus stocks receive
+    a longer Wayback lookback window so historical gaps are filled
+    with higher urgency.
+    """
+    focus_rows = _read_csv_codes(FOCUS_LIST_PATH)
+    focus_codes = {r["code"] for r in focus_rows}
+
+    all_rows = _read_csv_codes(STOCK_LIST_PATH)
+    non_focus = [r for r in all_rows if r["code"] not in focus_codes]
+
+    # Fallback: if CSVs are empty, use a minimal default set
+    if not focus_rows and not all_rows:
+        focus_rows = [
             {"code": "2330", "name": "台積電"},
             {"code": "2357", "name": "華碩"},
             {"code": "2382", "name": "廣達"},
-            {"code": "2480", "name": "敦陽科"}
+            {"code": "2480", "name": "敦陽科"},
         ]
-    return targets
+
+    # Tag each entry and concatenate: focus first
+    result = [{**r, "is_focus": True}  for r in focus_rows]
+    result += [{**r, "is_focus": False} for r in non_focus]
+    print(f"Stock list: {len(focus_rows)} focus + {len(non_focus)} standard = {len(result)} total")
+    return result
 
 def parse_val_with_suffix(val_str):
     if pd.isna(val_str) or not val_str or str(val_str).strip() == "N/A" or str(val_str).strip() == "-":
@@ -246,11 +271,19 @@ def parse_consensus_from_html(html_text):
 
 def main():
     parser = argparse.ArgumentParser(description="Fetch Wayback Machine Yahoo Finance consensus")
-    parser.add_argument("--backfill", action="store_true", help="Deep backfill mode: query up to 48 months (slow)")
-    parser.add_argument("--limit-months", type=int, default=None, help="Override lookback window in months")
+    parser.add_argument("--backfill", action="store_true", help="Deep backfill mode: focus=48m, standard=24m")
+    parser.add_argument("--limit-months", type=int, default=None, help="Override lookback for ALL stocks")
     args = parser.parse_args()
 
-    limit_months = args.limit_months if args.limit_months else (48 if args.backfill else 14)
+    # Per-priority lookback windows (overridden by --limit-months if set)
+    #   Focus stocks  : daily=28m  backfill=48m
+    #   Standard stocks: daily=14m  backfill=24m
+    if args.limit_months:
+        focus_limit = standard_limit = args.limit_months
+    elif args.backfill:
+        focus_limit, standard_limit = 48, 24
+    else:
+        focus_limit, standard_limit = 28, 14
 
     config = load_config()
     targets = load_stocks()
@@ -295,8 +328,10 @@ def main():
     all_records = []
     
     for t in targets:
-        code = t["code"]
-        name = t["name"]
+        code      = t["code"]
+        name      = t["name"]
+        is_focus  = t.get("is_focus", False)
+        limit_months = focus_limit if is_focus else standard_limit
         yahoo_symbol = f"{code}{suffix}"
         
         candidate_urls = [
@@ -305,8 +340,9 @@ def main():
             f"https://sg.finance.yahoo.com/quote/{yahoo_symbol}/analysis"
         ]
         
+        priority_tag = "🔵 FOCUS" if is_focus else "⚪ standard"
         print(f"\n=======================================================")
-        print(f"Target: {code} ({name}) - Yahoo Symbol: {yahoo_symbol}")
+        print(f"[{priority_tag}] {code} ({name})  symbol={yahoo_symbol}  lookback={limit_months}m")
         print(f"Querying snapshots on Wayback Machine for multiple domains...")
         
         all_snapshots = []
