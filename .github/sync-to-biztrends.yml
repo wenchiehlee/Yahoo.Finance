@@ -7,10 +7,6 @@ group:
         dest:   data/Yahoo.Finance/raw_yahoo_finance.csv
       - source: data/reports/wayback_yahoo_finance_consensus.csv
         dest:   data/Yahoo.Finance/wayback_yahoo_finance_consensus.csv
-      - source: StockID_TWSE_TPEX.csv
-        dest:   data/Yahoo.Finance/StockID_TWSE_TPEX.csv
-      - source: StockID_TWSE_TPEX_focus.csv
-        dest:   data/Yahoo.Finance/StockID_TWSE_TPEX_focus.csv
       - source: raw_column_definition_YahooFinance.md
         dest:   definitions/raw_column_definition_YahooFinance.md
     repos: |
