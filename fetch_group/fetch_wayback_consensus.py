@@ -174,108 +174,228 @@ def download_html(timestamp, original_url):
             time.sleep(3.0)
     return None
 
-def parse_consensus_from_html(html_text):
-    """Parse Revenue and Earnings estimate tables from HTML content."""
-    try:
-        dfs = pd.read_html(html_text)
-    except Exception as e:
-        return None
-        
-    revenue_df = None
-    earnings_df = None
+def parse_consensus_from_json(html_text):
+    """Fallback parser that extracts and processes window.App.main or window.__PRELOADED_STATE__ JSON."""
+    json_data = None
     
-    for df in dfs:
-        if df.empty or df.shape[1] < 2:
-            continue
+    # 1. Try to find in <script id="app-state" type="application/json">
+    m = re.search(r'<script[^>]*id=["\']app-state["\'][^>]*>(.*?)</script>', html_text, re.DOTALL)
+    if m:
+        try:
+            json_data = json.loads(m.group(1))
+        except Exception:
+            pass
             
-        # Standardize columns and rows
-        first_col = str(df.columns[0]).strip()
-        first_row_vals = [str(x).lower() for x in df.iloc[:, 0].tolist()]
-        
-        # Check if this is Earnings Estimate
-        # Typical rows: 'Avg. Estimate', 'Low Estimate', etc.
-        # Typical columns might contain "Current Qtr.", "Next Qtr.", "Current Year", "Next Year"
-        has_avg = any("avg" in str(x).lower() or "平均" in str(x) for x in first_row_vals)
-        
-        # Determine if Earnings or Revenue
-        # Revenue table will contain clues like 'sales growth' or 'year ago sales' or 'revenue' in headers/index
-        is_revenue = False
-        is_earnings = False
-        
-        # Flatten all text in DataFrame to find keywords
-        all_text = " ".join([str(x) for x in df.values.flatten()] + [str(c) for c in df.columns])
-        all_text_lower = all_text.lower()
-        
-        if has_avg:
-            if "sales" in all_text_lower or "revenue" in all_text_lower or "營收" in all_text or "收益預估" in all_text:
-                is_revenue = True
-            elif "eps" in all_text_lower or "earnings" in all_text_lower or "每股" in all_text or "盈利預估" in all_text:
-                is_earnings = True
-                
-        if is_revenue and revenue_df is None:
-            revenue_df = df
-        elif is_earnings and earnings_df is None:
-            earnings_df = df
-            
-    if revenue_df is None and earnings_df is None:
+    # 2. Try using the robust brace counter to locate the preloaded state JSON
+    if not json_data:
+        for marker in ['window.App.main =', 'window.__PRELOADED_STATE__ =', 'root.App.main =']:
+            idx = html_text.find(marker)
+            if idx != -1:
+                start_idx = html_text.find('{', idx)
+                if start_idx != -1:
+                    brace_count = 0
+                    in_quote = False
+                    escape = False
+                    for j in range(start_idx, len(html_text)):
+                        char = html_text[j]
+                        if escape:
+                            escape = False
+                            continue
+                        if char == '\\':
+                            escape = True
+                            continue
+                        if char == '"':
+                            in_quote = not in_quote
+                            continue
+                        if not in_quote:
+                            if char == '{':
+                                brace_count += 1
+                            elif char == '}':
+                                brace_count -= 1
+                                if brace_count == 0:
+                                    json_str = html_text[start_idx:j+1]
+                                    try:
+                                        json_data = json.loads(json_str)
+                                        break
+                                    except Exception:
+                                        break
+                    if json_data:
+                        break
+
+    if not json_data:
         return None
-        
-    # Process tables into standard dict
+
+    # Recursively find target key
+    def find_key_recursive(data, target_key):
+        if isinstance(data, dict):
+            if target_key in data:
+                return data[target_key]
+            for v in data.values():
+                res = find_key_recursive(v, target_key)
+                if res is not None:
+                    return res
+        elif isinstance(data, list):
+            for item in data:
+                res = find_key_recursive(item, target_key)
+                if res is not None:
+                    return res
+        return None
+
+    earnings_trend = find_key_recursive(json_data, 'earningsTrend')
+    if not earnings_trend or not isinstance(earnings_trend, dict) or 'trend' not in earnings_trend:
+        return None
+
+    trend_list = earnings_trend['trend']
+    if not isinstance(trend_list, list):
+        return None
+
     result = {
         "earnings_0q_avg": np.nan, "earnings_1q_avg": np.nan,
         "earnings_0y_avg": np.nan, "earnings_1y_avg": np.nan,
         "revenue_0q_avg": np.nan, "revenue_1q_avg": np.nan,
         "revenue_0y_avg": np.nan, "revenue_1y_avg": np.nan
     }
+
+    def extract_raw_val(item, key):
+        if isinstance(item, dict) and key in item and isinstance(item[key], dict):
+            avg_obj = item[key].get("avg")
+            if isinstance(avg_obj, dict):
+                raw_val = avg_obj.get("raw")
+                if raw_val is not None and not isinstance(raw_val, str) and not pd.isna(raw_val):
+                    return float(raw_val)
+                fmt_val = avg_obj.get("fmt")
+                if fmt_val is not None:
+                    return parse_val_with_suffix(fmt_val)
+        return np.nan
+
+    for trend_item in trend_list:
+        if not isinstance(trend_item, dict):
+            continue
+        period = trend_item.get("period")
+        
+        eps_val = extract_raw_val(trend_item, "earningsEstimate")
+        rev_val = extract_raw_val(trend_item, "revenueEstimate")
+
+        if period == "0q":
+            result["earnings_0q_avg"] = eps_val
+            result["revenue_0q_avg"] = rev_val
+        elif period == "+1q":
+            result["earnings_1q_avg"] = eps_val
+            result["revenue_1q_avg"] = rev_val
+        elif period == "0y":
+            result["earnings_0y_avg"] = eps_val
+            result["revenue_0y_avg"] = rev_val
+        elif period == "+1y":
+            result["earnings_1y_avg"] = eps_val
+            result["revenue_1y_avg"] = rev_val
+
+    has_any = any(not np.isnan(v) for v in result.values())
+    if has_any:
+        return result
+    return None
+
+def parse_consensus_from_html(html_text):
+    """Parse Revenue and Earnings estimate tables from HTML content."""
+    # First, try to use pandas.read_html
+    try:
+        from io import StringIO
+        dfs = pd.read_html(StringIO(html_text))
+    except Exception as e:
+        dfs = None
+        
+    revenue_df = None
+    earnings_df = None
     
-    def extract_avg_vals(df, is_rev):
-        prefix = "revenue" if is_rev else "earnings"
-        
-        # Find the row containing average estimate
-        avg_row_idx = None
-        for idx, row in df.iterrows():
-            row_label = str(row.iloc[0]).lower()
-            if "avg" in row_label or "平均" in row_label:
-                avg_row_idx = idx
-                break
+    if dfs is not None:
+        for df in dfs:
+            if df.empty or df.shape[1] < 2:
+                continue
                 
-        if avg_row_idx is None:
-            return
+            # Standardize columns and rows
+            first_col = str(df.columns[0]).strip()
+            first_row_vals = [str(x).lower() for x in df.iloc[:, 0].tolist()]
             
-        avg_row = df.iloc[avg_row_idx]
-        
-        # Identify columns (0q, 1q, 0y, 1y)
-        # Columns 1 to 4 should correspond to 0q, 1q, 0y, 1y respectively
-        for col_idx in range(1, min(5, len(avg_row))):
-            col_header = str(df.columns[col_idx]).lower()
-            val = parse_val_with_suffix(avg_row.iloc[col_idx])
+            # Check if this is Earnings Estimate
+            has_avg = any("avg" in str(x).lower() or "平均" in str(x) for x in first_row_vals)
             
-            # Map column index or header to period
-            if "next qtr" in col_header or "+1q" in col_header:
-                result[f"{prefix}_1q_avg"] = val
-            elif "current qtr" in col_header or "0q" in col_header:
-                result[f"{prefix}_0q_avg"] = val
-            elif "next year" in col_header or "+1y" in col_header:
-                result[f"{prefix}_1y_avg"] = val
-            elif "current year" in col_header or "0y" in col_header:
-                result[f"{prefix}_0y_avg"] = val
-            else:
-                # Fallback based on column index
-                if col_idx == 1:
-                    result[f"{prefix}_0q_avg"] = val
-                elif col_idx == 2:
-                    result[f"{prefix}_1q_avg"] = val
-                elif col_idx == 3:
-                    result[f"{prefix}_0y_avg"] = val
-                elif col_idx == 4:
-                    result[f"{prefix}_1y_avg"] = val
+            is_revenue = False
+            is_earnings = False
+            
+            # Flatten all text in DataFrame to find keywords
+            all_text = " ".join([str(x) for x in df.values.flatten()] + [str(c) for c in df.columns])
+            all_text_lower = all_text.lower()
+            
+            if has_avg:
+                if "sales" in all_text_lower or "revenue" in all_text_lower or "營收" in all_text or "收益預估" in all_text:
+                    is_revenue = True
+                elif "eps" in all_text_lower or "earnings" in all_text_lower or "每股" in all_text or "盈利預估" in all_text:
+                    is_earnings = True
+                    
+            if is_revenue and revenue_df is None:
+                revenue_df = df
+            elif is_earnings and earnings_df is None:
+                earnings_df = df
+                
+        if revenue_df is not None or earnings_df is not None:
+            # Process tables into standard dict
+            result = {
+                "earnings_0q_avg": np.nan, "earnings_1q_avg": np.nan,
+                "earnings_0y_avg": np.nan, "earnings_1y_avg": np.nan,
+                "revenue_0q_avg": np.nan, "revenue_1q_avg": np.nan,
+                "revenue_0y_avg": np.nan, "revenue_1y_avg": np.nan
+            }
+            
+            def extract_avg_vals(df, is_rev):
+                prefix = "revenue" if is_rev else "earnings"
+                
+                # Find the row containing average estimate
+                avg_row_idx = None
+                for idx, row in df.iterrows():
+                    row_label = str(row.iloc[0]).lower()
+                    if "avg" in row_label or "平均" in row_label:
+                        avg_row_idx = idx
+                        break
+                        
+                if avg_row_idx is None:
+                    return
+                    
+                avg_row = df.iloc[avg_row_idx]
+                
+                # Identify columns (0q, 1q, 0y, 1y)
+                for col_idx in range(1, min(5, len(avg_row))):
+                    col_header = str(df.columns[col_idx]).lower()
+                    val = parse_val_with_suffix(avg_row.iloc[col_idx])
+                    
+                    if "next qtr" in col_header or "+1q" in col_header:
+                        result[f"{prefix}_1q_avg"] = val
+                    elif "current qtr" in col_header or "0q" in col_header:
+                        result[f"{prefix}_0q_avg"] = val
+                    elif "next year" in col_header or "+1y" in col_header:
+                        result[f"{prefix}_1y_avg"] = val
+                    elif "current year" in col_header or "0y" in col_header:
+                        result[f"{prefix}_0y_avg"] = val
+                    else:
+                        # Fallback based on column index
+                        if col_idx == 1:
+                            result[f"{prefix}_0q_avg"] = val
+                        elif col_idx == 2:
+                            result[f"{prefix}_1q_avg"] = val
+                        elif col_idx == 3:
+                            result[f"{prefix}_0y_avg"] = val
+                        elif col_idx == 4:
+                            result[f"{prefix}_1y_avg"] = val
 
-    if revenue_df is not None:
-        extract_avg_vals(revenue_df, is_rev=True)
-    if earnings_df is not None:
-        extract_avg_vals(earnings_df, is_rev=False)
+            if revenue_df is not None:
+                extract_avg_vals(revenue_df, is_rev=True)
+            if earnings_df is not None:
+                extract_avg_vals(earnings_df, is_rev=False)
+                
+            has_any = any(not np.isnan(v) for v in result.values())
+            if has_any:
+                return result
 
-    return result
+    # Fallback to JSON parsing if read_html fails or doesn't find valid metrics
+    return parse_consensus_from_json(html_text)
 
 
 WAYBACK_OUTPUT_COLUMNS = [

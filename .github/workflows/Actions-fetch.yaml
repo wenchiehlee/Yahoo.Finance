@@ -87,6 +87,7 @@ jobs:
           git add StockID_TWSE_TPEX.csv StockID_TWSE_TPEX_focus.csv
           git add data/reports/raw_yahoo_finance.csv
           git add data/reports/raw_yahoo_finance_summary_latest.csv
+          git add data/reports/raw_wayback_coverage_matrix.csv
           if git diff --staged --quiet; then
             echo "No base Yahoo report changes to commit"
           else
