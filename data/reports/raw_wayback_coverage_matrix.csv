@@ -14,3 +14,12 @@
 2395,研華,2395.TW,20230124170607,2023-01-24,https://finance.yahoo.com/quote/2395.TW/analysis/,parse_failed,Failed to parse tables from HTML,2026-06-21 05:14:49
 2474,可成,2474.TW,20240718183844,2024-07-18,https://hk.finance.yahoo.com/quote/2474.TW/analysis/,parse_failed,Failed to parse tables from HTML,2026-06-21 05:23:41
 5269,祥碩,5269.TW,20240613005808,2024-06-13,https://sg.finance.yahoo.com/quote/5269.TW/analysis/,parse_failed,Failed to parse tables from HTML,2026-06-21 05:51:33
+2330,台積電,2330.TW,20260208030224,2026-02-08,https://hk.finance.yahoo.com/quote/2330.TW/analysis/,download_failed,Failed to download HTML,2026-06-21 13:01:48
+2454,聯發科,2454.TW,20220219204744,2022-02-19,https://finance.yahoo.com/quote/2454.TW/analysis/,success,,2026-06-21 13:32:40
+2454,聯發科,2454.TW,20231118080734,2023-11-18,https://finance.yahoo.com/quote/2454.TW/analysis/,parse_failed,Failed to parse tables from HTML,2026-06-21 13:32:44
+2454,聯發科,2454.TW,20240502125509,2024-05-02,https://finance.yahoo.com/quote/2454.TW/analysis,parse_failed,Failed to parse tables from HTML,2026-06-21 13:33:04
+2454,聯發科,2454.TW,20250108084744,2025-01-08,https://finance.yahoo.com/quote/2454.TW/analysis/,download_failed,Failed to download HTML,2026-06-21 13:34:11
+2308,台達電,2308.TW,20240416010829,2024-04-16,https://hk.finance.yahoo.com/quote/2308.TW/analysis,parse_failed,Failed to parse tables from HTML,2026-06-21 13:42:52
+2308,台達電,2308.TW,20240527084717,2024-05-27,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,parse_failed,Failed to parse tables from HTML,2026-06-21 13:42:55
+2354,鴻準,2354.TW,20240217195404,2024-02-17,https://finance.yahoo.com/quote/2354.TW/analysis/,parse_failed,Failed to parse tables from HTML,2026-06-21 13:52:23
+3231,緯創,3231.TW,20250425084726,2025-04-25,https://finance.yahoo.com/quote/3231.TW/analysis/,parse_failed,Failed to parse tables from HTML,2026-06-21 14:27:33
