@@ -52,8 +52,12 @@ jobs:
 
       - name: Validate synced inputs
         run: |
-          test -f data/ConceptStocks/raw_conceptstock_company_metadata.csv || echo "::warning::data/ConceptStocks/raw_conceptstock_company_metadata.csv missing; US fetch will be empty"
-          test -f data/reports/raw_factset_detailed_report.csv || echo "::warning::raw_factset_detailed_report.csv missing; summary cross-check will be marked missing_factset_source"
+          if [ ! -f data/ConceptStocks/raw_conceptstock_company_metadata.csv ]; then
+            echo "::warning::ConceptStocks metadata missing; US fetch will be empty"
+          fi
+          if [ ! -f data/reports/raw_factset_detailed_report.csv ]; then
+            echo "::warning::FactSet report missing; summary cross-check will be missing_factset_source"
+          fi
 
       - name: Fetch Yahoo Finance analysis
         run: |
@@ -62,27 +66,53 @@ jobs:
           SYMBOLS="${{ github.event.inputs.specific_symbols || '' }}"
           RAW_OUTPUT="data/reports/raw_yahoo_finance.csv"
           echo "RAW_OUTPUT=$RAW_OUTPUT" >> "$GITHUB_ENV"
-          python fetch_group/fetch_cli.py --market "$MARKET" --tw-list "$TW_LIST" --specific-symbols "$SYMBOLS" --output-csv "$RAW_OUTPUT"
+          python fetch_group/fetch_cli.py \
+            --market "$MARKET" \
+            --tw-list "$TW_LIST" \
+            --specific-symbols "$SYMBOLS" \
+            --output-csv "$RAW_OUTPUT"
 
       - name: Generate forecast summary
         run: |
           SUMMARY_OUTPUT="data/reports/raw_yahoo_finance_summary_latest.csv"
           python process_group/process_cli.py --raw-csv "$RAW_OUTPUT" --output-csv "$SUMMARY_OUTPUT"
 
-      - name: Fetch Wayback Machine consensus (daily)
-        run: |
-          python fetch_group/fetch_wayback_consensus.py
-        continue-on-error: true
-
-      - name: Commit generated reports
+      - name: Configure git author
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add StockID_TWSE_TPEX.csv StockID_TWSE_TPEX_focus.csv data/reports/raw_yahoo_finance.csv data/reports/raw_yahoo_finance_summary_latest.csv data/reports/wayback_yahoo_finance_consensus.csv
+
+      - name: Commit base Yahoo reports
+        run: |
+          git add StockID_TWSE_TPEX.csv StockID_TWSE_TPEX_focus.csv
+          git add data/reports/raw_yahoo_finance.csv
+          git add data/reports/raw_yahoo_finance_summary_latest.csv
           if git diff --staged --quiet; then
-            echo "No changes to commit"
+            echo "No base Yahoo report changes to commit"
           else
             git commit -m "chore: update Yahoo Finance forecasts ($(date -u +%Y-%m-%d))"
+            git pull --rebase
+            git push
+          fi
+
+      - name: Fetch Wayback Machine consensus (daily)
+        run: |
+          python fetch_group/fetch_wayback_consensus.py --max-runtime-minutes 300
+        continue-on-error: true
+
+      - name: Commit Wayback progress
+        run: |
+          if [ -f data/reports/raw_wayback_yahoo_finance_consensus.csv ]; then
+            git add data/reports/raw_wayback_yahoo_finance_consensus.csv
+          fi
+          if [ -f data/reports/raw_wayback_coverage_matrix.csv ]; then
+            git add data/reports/raw_wayback_coverage_matrix.csv
+          fi
+          if git diff --staged --quiet; then
+            echo "No Wayback progress to commit"
+          else
+            git commit -m "chore: update Yahoo Finance Wayback progress ($(date -u +%Y-%m-%d))"
+            git pull --rebase
             git push
           fi
 

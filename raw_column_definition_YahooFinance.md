@@ -109,3 +109,61 @@ destination: downstream definitions/raw_column_definition_YahooFinance.md
 | `error_message` | string | Error or skip reason | raw Yahoo |  |
 | `download_timestamp` | datetime | Latest Yahoo/yfinance retrieval timestamp | raw Yahoo | UTC |
 | `process_timestamp` | datetime | Summary generation timestamp | System | UTC |
+
+---
+
+## raw_wayback_yahoo_finance_consensus.csv (Yahoo Finance Historical Consensus, Wide Format)
+
+**Source:** `data/reports/raw_wayback_yahoo_finance_consensus.csv`  
+**Data Source:** Yahoo Finance `/analysis` pages captured by the Wayback Machine  
+**Update Frequency:** Daily bounded backfill with checkpointing  
+**Extraction Strategy:** Query Wayback CDX snapshots for Yahoo Finance analysis pages, parse archived revenue and EPS estimate tables, normalize one successful monthly snapshot per stock/date into wide consensus columns.
+
+### Columns
+
+| Column | Type | Description | Source Field | Notes |
+|---|---|---|---|---|
+| `stock_code` | string | Taiwan stock code | Stock list `代號` | e.g., `2330` |
+| `company_name` | string | Company display name | Stock list `名稱` |  |
+| `forecast_asof_date` | date | Archived Yahoo analysis snapshot date | Wayback timestamp | `YYYY-MM-DD` derived from snapshot timestamp |
+| `earnings_0q_avg` | float | Current-quarter average EPS estimate | Archived Yahoo earnings estimate table | Nullable when unavailable |
+| `earnings_1q_avg` | float | Next-quarter average EPS estimate | Archived Yahoo earnings estimate table | Nullable when unavailable |
+| `earnings_0y_avg` | float | Current-year average EPS estimate | Archived Yahoo earnings estimate table | Nullable when unavailable |
+| `earnings_1y_avg` | float | Next-year average EPS estimate | Archived Yahoo earnings estimate table | Nullable when unavailable |
+| `revenue_0q_avg` | float | Current-quarter average revenue estimate | Archived Yahoo revenue estimate table | Numeric values normalize `K/M/B/T` suffixes |
+| `revenue_1q_avg` | float | Next-quarter average revenue estimate | Archived Yahoo revenue estimate table | Numeric values normalize `K/M/B/T` suffixes |
+| `revenue_0y_avg` | float | Current-year average revenue estimate | Archived Yahoo revenue estimate table | Numeric values normalize `K/M/B/T` suffixes |
+| `revenue_1y_avg` | float | Next-year average revenue estimate | Archived Yahoo revenue estimate table | Numeric values normalize `K/M/B/T` suffixes |
+
+---
+
+## raw_wayback_coverage_matrix.csv (Yahoo Finance Wayback Snapshot Coverage Matrix)
+
+**Source:** `data/reports/raw_wayback_coverage_matrix.csv`  
+**Data Source:** Wayback Machine CDX snapshots and archived Yahoo Finance download/parse attempts  
+**Update Frequency:** Updated during each bounded Wayback run  
+**Extraction Strategy:** Append one row per attempted archived snapshot, including successful parses and known non-parseable snapshots. Later runs use this matrix to skip already-recorded snapshots and avoid repeating the same failed downloads/parses.
+
+### Status Values
+
+| status | Meaning |
+|---|---|
+| `success` | Snapshot downloaded, parsed, and produced at least one consensus value |
+| `download_failed` | Snapshot HTML could not be downloaded after retries |
+| `parse_failed` | Snapshot downloaded but no usable consensus tables were parsed |
+| `empty_metrics` | Tables parsed but all target consensus values were empty or NaN |
+
+### Columns
+
+| Column | Type | Description | Source Field | Notes |
+|---|---|---|---|---|
+| `stock_code` | string | Taiwan stock code | Stock list `代號` | e.g., `2330` |
+| `company_name` | string | Company display name | Stock list `名稱` |  |
+| `yahoo_symbol` | string | Yahoo Finance ticker symbol used for the archive query | System | e.g., `2330.TW` |
+| `snapshot_timestamp` | string | Wayback snapshot timestamp | CDX `timestamp` | `YYYYMMDDHHMMSS` |
+| `forecast_asof_date` | date | Snapshot date derived from `snapshot_timestamp` | System | `YYYY-MM-DD` |
+| `original_url` | string | Original Yahoo Finance analysis URL stored by Wayback | CDX `original` | May be finance/hk/sg Yahoo domain |
+| `status` | string | Snapshot processing result | System | See status values above |
+| `message` | string | Error or status details | System | Blank for `success` |
+| `process_timestamp` | datetime | UTC timestamp when the coverage row was written | System | `YYYY-MM-DD HH:MM:SS` |
+

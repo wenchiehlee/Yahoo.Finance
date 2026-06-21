@@ -28,14 +28,22 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH        = os.path.join(REPO_ROOT, "configs", "default.yaml")
 STOCK_LIST_PATH    = os.path.join(REPO_ROOT, "StockID_TWSE_TPEX.csv")
 FOCUS_LIST_PATH    = os.path.join(REPO_ROOT, "StockID_TWSE_TPEX_focus.csv")
-OUTPUT_CSV         = os.path.join(REPO_ROOT, "data", "reports", "wayback_yahoo_finance_consensus.csv")
+OUTPUT_CSV         = os.path.join(REPO_ROOT, "data", "reports", "raw_wayback_yahoo_finance_consensus.csv")
 
 def load_config():
     if not os.path.exists(CONFIG_PATH):
         return {}
     import yaml
     with open(CONFIG_PATH, encoding="utf-8") as f:
-        return yaml.safe_load(f)
+        return yaml.safe_load(f) or {}
+
+
+def load_config_from_path(path: str):
+    if not os.path.exists(path):
+        return {}
+    import yaml
+    with open(path, encoding="utf-8") as f:
+        return yaml.safe_load(f) or {}
 
 def _read_csv_codes(path: str) -> list[dict]:
     """Read stock list CSV, return list of {code, name}."""
@@ -266,18 +274,235 @@ def parse_consensus_from_html(html_text):
         extract_avg_vals(revenue_df, is_rev=True)
     if earnings_df is not None:
         extract_avg_vals(earnings_df, is_rev=False)
-        
+
     return result
+
+
+WAYBACK_OUTPUT_COLUMNS = [
+    "stock_code",
+    "company_name",
+    "forecast_asof_date",
+    "earnings_0q_avg",
+    "earnings_1q_avg",
+    "earnings_0y_avg",
+    "earnings_1y_avg",
+    "revenue_0q_avg",
+    "revenue_1q_avg",
+    "revenue_0y_avg",
+    "revenue_1y_avg",
+]
+
+COVERAGE_COLUMNS = [
+    "stock_code",
+    "company_name",
+    "yahoo_symbol",
+    "snapshot_timestamp",
+    "forecast_asof_date",
+    "original_url",
+    "status",
+    "message",
+    "process_timestamp",
+]
+
+
+def utc_now() -> str:
+    return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+
+
+def resolve_repo_path(path_value: str | None, default_value: str | None = None) -> Path | None:
+    """Resolve a config/CLI path relative to the repository root."""
+    value = path_value or default_value
+    if not value:
+        return None
+    path = Path(value)
+    if not path.is_absolute():
+        path = REPO_ROOT / path
+    return path.resolve()
+
+
+def filter_specific(targets: list[dict], specific_symbols: str) -> list[dict]:
+    symbols = {part.strip().upper() for part in specific_symbols.split(",") if part.strip()}
+    if not symbols:
+        return targets
+    return [target for target in targets if target["code"].upper() in symbols]
+
+
+def load_coverage(history_csv: Path | None) -> set[tuple[str, str]]:
+    """Return (stock_code, YYYYMM) pairs already covered by valid history rows."""
+    already_covered: set[tuple[str, str]] = set()
+    consensus_cols = ["earnings_0y_avg", "revenue_0y_avg", "earnings_0q_avg", "revenue_0q_avg"]
+
+    if history_csv is None:
+        print("No history CSV configured - will fetch all available snapshots.")
+        return already_covered
+
+    if not history_csv.exists():
+        print(f"No existing history found at {history_csv} - will fetch all available snapshots.")
+        return already_covered
+
+    try:
+        df_hist = pd.read_csv(history_csv, encoding="utf-8")
+        if "stock_code" not in df_hist.columns or "forecast_asof_date" not in df_hist.columns:
+            print(f"Warning: History CSV lacks required columns: {history_csv}")
+            return already_covered
+
+        df_hist["stock_code"] = df_hist["stock_code"].astype(str).str.strip()
+        df_hist["_ym"] = pd.to_datetime(df_hist["forecast_asof_date"], errors="coerce").dt.strftime("%Y%m")
+        for _, row in df_hist.dropna(subset=["_ym"]).iterrows():
+            has_value = any(
+                col in df_hist.columns
+                and pd.notna(row.get(col))
+                and str(row.get(col)).strip() not in ["", "nan", "NaN"]
+                for col in consensus_cols
+            )
+            if has_value:
+                already_covered.add((row["stock_code"], row["_ym"]))
+        print(f"Loaded coverage matrix: {len(already_covered)} already-covered (stock, month) pairs.")
+    except Exception as e:
+        print(f"Warning: Failed to load existing history for gap analysis: {e}")
+
+    return already_covered
+
+
+def load_covered_snapshots(coverage_csv: Path | None, retry_failed_attempts: bool) -> set[tuple[str, str]]:
+    """Return (stock_code, snapshot_timestamp) pairs already recorded in previous runs."""
+    if coverage_csv is None or retry_failed_attempts or not coverage_csv.exists():
+        return set()
+
+    try:
+        df_attempts = pd.read_csv(coverage_csv, encoding="utf-8")
+    except Exception as e:
+        print(f"Warning: Failed to load Wayback coverage matrix: {e}")
+        return set()
+
+    required = {"stock_code", "snapshot_timestamp"}
+    if not required.issubset(df_attempts.columns):
+        print(f"Warning: Wayback coverage matrix lacks required columns: {coverage_csv}")
+        return set()
+
+    df_attempts["stock_code"] = df_attempts["stock_code"].astype(str).str.strip()
+    df_attempts["snapshot_timestamp"] = df_attempts["snapshot_timestamp"].astype(str).str.strip()
+    attempted = set(zip(df_attempts["stock_code"], df_attempts["snapshot_timestamp"]))
+    print(f"Loaded coverage matrix: {len(attempted)} covered snapshots.")
+    return attempted
+
+
+def append_coverage_row(coverage_csv: Path | None, row: dict) -> None:
+    if coverage_csv is None:
+        return
+    coverage_csv.parent.mkdir(parents=True, exist_ok=True)
+    write_header = not coverage_csv.exists() or coverage_csv.stat().st_size == 0
+    with coverage_csv.open("a", encoding="utf-8-sig", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=COVERAGE_COLUMNS)
+        if write_header:
+            writer.writeheader()
+        writer.writerow({col: row.get(col, "") for col in COVERAGE_COLUMNS})
+
+
+def merge_history(df_out: pd.DataFrame, history_csv: Path) -> None:
+    """Merge newly fetched Wayback records into the downstream history CSV."""
+    history_csv.parent.mkdir(parents=True, exist_ok=True)
+
+    if history_csv.exists():
+        df_old = pd.read_csv(history_csv, encoding="utf-8")
+        df_old["stock_code"] = df_old["stock_code"].astype(str).str.strip()
+        df_out["stock_code"] = df_out["stock_code"].astype(str).str.strip()
+        df_combined = pd.concat([df_old, df_out], ignore_index=True)
+    else:
+        print(f"Target history file not found. Creating: {history_csv}")
+        df_combined = df_out.copy()
+        df_combined["stock_code"] = df_combined["stock_code"].astype(str).str.strip()
+
+    df_combined = df_combined.drop_duplicates(subset=["stock_code", "forecast_asof_date"], keep="last")
+    df_combined = df_combined.sort_values(by=["stock_code", "forecast_asof_date"])
+    df_combined.to_csv(history_csv, index=False, encoding="utf-8-sig")
+    print(f"Checkpointed history CSV at {history_csv}: {len(df_combined)} records.")
+
+
+def checkpoint_records(records: list[dict], output_csv: Path, history_csv: Path | None) -> None:
+    if not records:
+        return
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    df_out = pd.DataFrame(records)[WAYBACK_OUTPUT_COLUMNS]
+    df_out = df_out.drop_duplicates(subset=["stock_code", "forecast_asof_date"], keep="last")
+    df_out = df_out.sort_values(by=["stock_code", "forecast_asof_date"])
+    df_out.to_csv(output_csv, index=False, encoding="utf-8-sig")
+    print(f"Checkpointed {len(df_out)} records to {output_csv}")
+    if history_csv is not None:
+        merge_history(df_out, history_csv)
+
+
+def make_coverage_row(
+    stock: dict,
+    yahoo_symbol: str,
+    snapshot: dict,
+    asof_date: str,
+    status: str,
+    message: str,
+) -> dict:
+    return {
+        "stock_code": stock["code"],
+        "company_name": stock["name"],
+        "yahoo_symbol": yahoo_symbol,
+        "snapshot_timestamp": snapshot["timestamp"],
+        "forecast_asof_date": asof_date,
+        "original_url": snapshot.get("original", ""),
+        "status": status,
+        "message": message,
+        "process_timestamp": utc_now(),
+    }
+
+
+def time_budget_exhausted(deadline: float | None) -> bool:
+    return deadline is not None and time.monotonic() >= deadline
+
 
 def main():
     parser = argparse.ArgumentParser(description="Fetch Wayback Machine Yahoo Finance consensus")
+    parser.add_argument("--config", default=str(CONFIG_PATH), help="YAML config path")
     parser.add_argument("--backfill", action="store_true", help="Deep backfill mode: focus=48m, standard=24m")
     parser.add_argument("--limit-months", type=int, default=None, help="Override lookback for ALL stocks")
+    parser.add_argument("--tw-list", choices=["all", "focus"], default="all", help="Stock universe to fetch")
+    parser.add_argument(
+        "--specific-symbols",
+        default="",
+        help="Comma-separated stock codes to fetch, e.g. 2330,2382",
+    )
+    parser.add_argument("--output-csv", help="Wayback batch output CSV path")
+    parser.add_argument("--coverage-csv", help="Wayback coverage matrix CSV path")
+    parser.add_argument("--history-csv", help="Consensus history CSV to use for gap detection and merge")
+    parser.add_argument(
+        "--max-runtime-minutes",
+        type=float,
+        help="Stop gracefully after this many minutes so the workflow can commit partial work",
+    )
+    parser.add_argument(
+        "--retry-failed-attempts",
+        action="store_true",
+        help="Retry snapshots already present in the coverage matrix",
+    )
+    parser.add_argument(
+        "--no-merge",
+        action="store_true",
+        help="Only write --output-csv; do not merge into history CSV",
+    )
     args = parser.parse_args()
 
-    # Per-priority lookback windows (overridden by --limit-months if set)
-    #   Focus stocks  : daily=28m  backfill=48m
-    #   Standard stocks: daily=14m  backfill=24m
+    config = load_config() if args.config == str(CONFIG_PATH) else load_config_from_path(args.config)
+    output_csv = resolve_repo_path(
+        args.output_csv,
+        config.get("output", {}).get("wayback_consensus_csv") or OUTPUT_CSV,
+    )
+    coverage_csv = resolve_repo_path(
+        args.coverage_csv,
+        config.get("output", {}).get("wayback_coverage_matrix_csv"),
+    )
+    history_csv = resolve_repo_path(args.history_csv, config.get("output", {}).get("wayback_consensus_history_csv"))
+    max_runtime = args.max_runtime_minutes
+    if max_runtime is None:
+        max_runtime = float(config.get("wayback", {}).get("max_runtime_minutes", 300))
+    deadline = time.monotonic() + max_runtime * 60 if max_runtime > 0 else None
+
     if args.limit_months:
         focus_limit = standard_limit = args.limit_months
     elif args.backfill:
@@ -285,180 +510,139 @@ def main():
     else:
         focus_limit, standard_limit = 28, 14
 
-    config = load_config()
     targets = load_stocks()
-    # Skip TAIEX index (0000) - no analyst coverage on Yahoo Finance
+    if args.tw_list == "focus":
+        targets = [target for target in targets if target.get("is_focus", False)]
+    targets = filter_specific(targets, args.specific_symbols)
     targets = [t for t in targets if t["code"] not in ["0000", "加權指數"]]
-    
-    # Determine default suffix
-    suffix = ".TW"
-    if config and "yahoo" in config:
-        suffix = config["yahoo"].get("taiwan_default_suffix", ".TW")
-        
-    os.makedirs(os.path.dirname(OUTPUT_CSV), exist_ok=True)
 
-    # -------------------------------------------------------
-    # Load existing history to build coverage matrix
-    # Only download months that are NOT already covered
-    # -------------------------------------------------------
-    biztrends_target_csv = os.path.abspath(os.path.join(
-        REPO_ROOT, "..", "biztrends.TW", "data", "Yahoo.Finance", "raw_yahoo_finance_consensus_history.csv"
-    ))
-    already_covered = set()  # set of (stock_code, "YYYYMM") that already have valid consensus data
-    CONSENSUS_COLS = ["earnings_0y_avg", "revenue_0y_avg", "earnings_0q_avg", "revenue_0q_avg"]
-    if os.path.exists(biztrends_target_csv):
-        try:
-            df_hist = pd.read_csv(biztrends_target_csv, encoding="utf-8")
-            df_hist["stock_code"] = df_hist["stock_code"].astype(str).str.strip()
-            df_hist["_ym"] = pd.to_datetime(df_hist["forecast_asof_date"]).dt.strftime("%Y%m")
-            for _, row in df_hist.iterrows():
-                # Only mark as covered if at least one consensus column has a valid value
-                has_value = any(
-                    col in df_hist.columns and pd.notna(row.get(col)) and str(row.get(col)).strip() not in ["", "nan", "NaN"]
-                    for col in CONSENSUS_COLS
-                )
-                if has_value:
-                    already_covered.add((row["stock_code"], row["_ym"]))
-            print(f"Loaded coverage matrix: {len(already_covered)} already-covered (stock, month) pairs.")
-        except Exception as e:
-            print(f"Warning: Failed to load existing history for gap analysis: {e}")
-    else:
-        print("No existing history found — will fetch all available snapshots.")
+    suffix = config.get("yahoo", {}).get("taiwan_default_suffix", ".TW")
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    already_covered = load_coverage(history_csv if not args.no_merge else None)
+    already_covered.update(load_coverage(output_csv))
+    covered_snapshots = load_covered_snapshots(coverage_csv, args.retry_failed_attempts)
+    all_records: list[dict] = []
 
-    all_records = []
-    
     for t in targets:
-        code      = t["code"]
-        name      = t["name"]
-        is_focus  = t.get("is_focus", False)
+        if time_budget_exhausted(deadline):
+            print("Runtime budget reached before next stock. Exiting gracefully.")
+            break
+
+        code = t["code"]
+        name = t["name"]
+        is_focus = t.get("is_focus", False)
         limit_months = focus_limit if is_focus else standard_limit
         yahoo_symbol = f"{code}{suffix}"
-        
+
         candidate_urls = [
             f"https://finance.yahoo.com/quote/{yahoo_symbol}/analysis",
             f"https://hk.finance.yahoo.com/quote/{yahoo_symbol}/analysis",
-            f"https://sg.finance.yahoo.com/quote/{yahoo_symbol}/analysis"
+            f"https://sg.finance.yahoo.com/quote/{yahoo_symbol}/analysis",
         ]
-        
-        priority_tag = "🔵 FOCUS" if is_focus else "⚪ standard"
-        print(f"\n=======================================================")
+
+        priority_tag = "FOCUS" if is_focus else "standard"
+        print("\n=======================================================")
         print(f"[{priority_tag}] {code} ({name})  symbol={yahoo_symbol}  lookback={limit_months}m")
-        print(f"Querying snapshots on Wayback Machine for multiple domains...")
-        
+        print("Querying snapshots on Wayback Machine for multiple domains...")
+
         all_snapshots = []
         for url in candidate_urls:
+            if time_budget_exhausted(deadline):
+                print("Runtime budget reached during CDX queries. Exiting gracefully.")
+                break
             print(f"  Querying: {url}")
             snaps = fetch_wayback_snapshots(url, limit_months=limit_months)
             print(f"    Found {len(snaps)} snapshots.")
             all_snapshots.extend(snaps)
-            time.sleep(1.0)  # gap between CDX calls
-            
-        # Deduplicate snapshots by Year-Month (timestamp[:6])
+            time.sleep(1.0)
+
         monthly_snaps = {}
         for snap in all_snapshots:
             ts = snap["timestamp"]
             ym = ts[:6]
-            # Keep the latest snapshot timestamp for the same month
             if ym not in monthly_snaps or ts > monthly_snaps[ym]["timestamp"]:
                 monthly_snaps[ym] = snap
-                
-        snapshots = sorted(list(monthly_snaps.values()), key=lambda x: x["timestamp"])
-        snapshots = snapshots[-limit_months:]  # Limit to configured window
-        print(f"Total unique monthly snapshots after merging: {len(snapshots)}")
-        
-        for idx, snap in enumerate(snapshots, 1):
-            ts = snap["timestamp"]
-            snap_ym = ts[:6]  # YYYYMM
-            # Convert timestamp to date YYYY-MM-DD
-            asof_date = f"{ts[:4]}-{ts[4:6]}-{ts[6:8]}"
 
-            # ---- Matrix-driven skip: already covered? ----
+        snapshots = sorted(list(monthly_snaps.values()), key=lambda x: x["timestamp"])
+        snapshots = snapshots[-limit_months:]
+        print(f"Total unique monthly snapshots after merging: {len(snapshots)}")
+
+        for idx, snap in enumerate(snapshots, 1):
+            if time_budget_exhausted(deadline):
+                print("Runtime budget reached during snapshot loop. Exiting gracefully.")
+                checkpoint_records(all_records, output_csv, history_csv if not args.no_merge else None)
+                return
+
+            ts = snap["timestamp"]
+            snap_ym = ts[:6]
+            asof_date = f"{ts[:4]}-{ts[4:6]}-{ts[6:8]}"
+            attempt_key = (code, ts)
+
             if (code, snap_ym) in already_covered:
-                print(f"  [{idx}/{len(snapshots)}] {asof_date} already covered ✅ — skipping download.")
+                print(f"  [{idx}/{len(snapshots)}] {asof_date} already covered - skipping download.")
+                continue
+            if attempt_key in covered_snapshots:
+                print(
+                    f"  [{idx}/{len(snapshots)}] {asof_date} already recorded "
+                    "in coverage matrix - skipping download."
+                )
                 continue
 
             print(f"  [{idx}/{len(snapshots)}] Downloading snapshot as of {asof_date} (gap to fill)...")
-            
             html = download_html(ts, snap["original"])
             if not html:
-                print(f"    ⚠️ Failed to download HTML.")
+                message = "Failed to download HTML"
+                print(f"    {message}.")
+                append_coverage_row(
+                    coverage_csv,
+                    make_coverage_row(t, yahoo_symbol, snap, asof_date, "download_failed", message),
+                )
+                covered_snapshots.add(attempt_key)
                 continue
-                
+
             metrics = parse_consensus_from_html(html)
             if not metrics:
-                print(f"    ⚠️ Failed to parse tables from HTML.")
+                message = "Failed to parse tables from HTML"
+                print(f"    {message}.")
+                append_coverage_row(
+                    coverage_csv,
+                    make_coverage_row(t, yahoo_symbol, snap, asof_date, "parse_failed", message),
+                )
+                covered_snapshots.add(attempt_key)
                 continue
-                
-            # Check if we got any valid data
+
             has_data = any(not np.isnan(v) for v in metrics.values())
             if not has_data:
-                print(f"    ⚠️ Parse succeeded but all metrics were NaN.")
+                message = "Parse succeeded but all metrics were NaN"
+                print(f"    {message}.")
+                append_coverage_row(
+                    coverage_csv,
+                    make_coverage_row(t, yahoo_symbol, snap, asof_date, "empty_metrics", message),
+                )
+                covered_snapshots.add(attempt_key)
                 continue
-                
+
             record = {
                 "stock_code": code,
                 "company_name": name,
                 "forecast_asof_date": asof_date,
-                **metrics
+                **metrics,
             }
             all_records.append(record)
-            print(f"    ✅ Successfully parsed consensus data.")
-            time.sleep(2.0) # rate limit to Wayback server
-            
+            append_coverage_row(coverage_csv, make_coverage_row(t, yahoo_symbol, snap, asof_date, "success", ""))
+            covered_snapshots.add(attempt_key)
+            already_covered.add((code, snap_ym))
+            print("    Successfully parsed consensus data.")
+            checkpoint_records(all_records, output_csv, history_csv if not args.no_merge else None)
+            time.sleep(2.0)
+
     if not all_records:
         print("No historical snapshots successfully processed.")
         return
-        
-    # Write to CSV
-    df_out = pd.DataFrame(all_records)
-    # Reorder columns
-    cols = ["stock_code", "company_name", "forecast_asof_date", 
-            "earnings_0q_avg", "earnings_1q_avg", "earnings_0y_avg", "earnings_1y_avg",
-            "revenue_0q_avg", "revenue_1q_avg", "revenue_0y_avg", "revenue_1y_avg"]
-    df_out = df_out[cols]
-    
-    # Save output
-    df_out.to_csv(OUTPUT_CSV, index=False, encoding="utf-8-sig")
-    print(f"\nFinished! Wrote {len(df_out)} historical records to {OUTPUT_CSV}")
-    
-    # ----------------------------------------------------
-    # Automatically Merge & Deduplicate into biztrends.TW
-    # ----------------------------------------------------
-    biztrends_target_csv = os.path.abspath(os.path.join(
-        REPO_ROOT, "..", "biztrends.TW", "data", "Yahoo.Finance", "raw_yahoo_finance_consensus_history.csv"
-    ))
-    
-    if os.path.exists(biztrends_target_csv):
-        print(f"Target history file found: {biztrends_target_csv}")
-        try:
-            df_old = pd.read_csv(biztrends_target_csv, encoding="utf-8")
-            
-            # Ensure stock_code is string type in both
-            df_old["stock_code"] = df_old["stock_code"].astype(str).str.strip()
-            df_out["stock_code"] = df_out["stock_code"].astype(str).str.strip()
-            
-            # Concat
-            df_combined = pd.concat([df_old, df_out], ignore_index=True)
-            
-            # Drop duplicates by stock_code and forecast_asof_date
-            df_combined = df_combined.drop_duplicates(subset=["stock_code", "forecast_asof_date"], keep="last")
-            
-            # Sort by stock_code and forecast_asof_date
-            df_combined = df_combined.sort_values(by=["stock_code", "forecast_asof_date"])
-            
-            # Save back to biztrends.TW
-            df_combined.to_csv(biztrends_target_csv, index=False, encoding="utf-8-sig")
-            print(f"Successfully merged & deduplicated. Updated history CSV at {biztrends_target_csv} to {len(df_combined)} records.")
-        except Exception as e:
-            print(f"Failed to merge with target history CSV: {e}")
-    else:
-        print(f"Target history file NOT found at {biztrends_target_csv}. Copying current output there...")
-        try:
-            os.makedirs(os.path.dirname(biztrends_target_csv), exist_ok=True)
-            df_out.to_csv(biztrends_target_csv, index=False, encoding="utf-8-sig")
-            print(f"Copied to {biztrends_target_csv}")
-        except Exception as e:
-            print(f"Failed to copy to target path: {e}")
+
+    checkpoint_records(all_records, output_csv, history_csv if not args.no_merge else None)
+    print(f"\nFinished! Wrote {len(all_records)} historical records to {output_csv}")
+
 
 if __name__ == "__main__":
     main()

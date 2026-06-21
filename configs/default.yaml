@@ -6,6 +6,12 @@ input:
 output:
   raw_csv: data/reports/raw_yahoo_finance.csv
   summary_csv: data/reports/raw_yahoo_finance_summary_latest.csv
+  wayback_consensus_csv: data/reports/raw_wayback_yahoo_finance_consensus.csv
+  wayback_coverage_matrix_csv: data/reports/raw_wayback_coverage_matrix.csv
+  wayback_consensus_history_csv: ../biztrends.TW/data/Yahoo.Finance/raw_yahoo_finance_consensus_history.csv
+
+wayback:
+  max_runtime_minutes: 300
 
 yahoo:
   source_url_template: "https://hk.finance.yahoo.com/quote/{yahoo_symbol}/analysis/"
