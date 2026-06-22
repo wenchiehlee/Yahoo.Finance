@@ -23,3 +23,14 @@
 2308,台達電,2308.TW,20240527084717,2024-05-27,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,parse_failed,Failed to parse tables from HTML,2026-06-21 13:42:55
 2354,鴻準,2354.TW,20240217195404,2024-02-17,https://finance.yahoo.com/quote/2354.TW/analysis/,parse_failed,Failed to parse tables from HTML,2026-06-21 13:52:23
 3231,緯創,3231.TW,20250425084726,2025-04-25,https://finance.yahoo.com/quote/3231.TW/analysis/,parse_failed,Failed to parse tables from HTML,2026-06-21 14:27:33
+2330,台積電,2330.TW,20220408211155,2022-04-08,https://finance.yahoo.com/quote/2330.TW/analysis/,download_failed,Failed to download HTML,2026-06-21 20:28:40
+2330,台積電,2330.TW,20240416033147,2024-04-16,https://finance.yahoo.com/quote/2330.TW/analysis,download_failed,Failed to download HTML,2026-06-21 20:30:08
+2330,台積電,2330.TW,20240621231936,2024-06-21,https://hk.finance.yahoo.com/quote/2330.TW/analysis/,parse_failed,Failed to parse tables from HTML,2026-06-21 20:30:15
+2330,台積電,2330.TW,20240729220941,2024-07-29,https://finance.yahoo.com/quote/2330.TW/analysis/,parse_failed,Failed to parse tables from HTML,2026-06-21 20:30:17
+2330,台積電,2330.TW,20240926212205,2024-09-26,https://finance.yahoo.com/quote/2330.TW/analysis/,parse_failed,Failed to parse tables from HTML,2026-06-21 20:30:21
+2330,台積電,2330.TW,20241013180351,2024-10-13,https://hk.finance.yahoo.com/quote/2330.TW/analysis/,parse_failed,Failed to parse tables from HTML,2026-06-21 20:30:23
+2330,台積電,2330.TW,20260128171733,2026-01-28,https://finance.yahoo.com/quote/2330.TW/analysis/,parse_failed,Failed to parse tables from HTML,2026-06-21 20:30:38
+2382,廣達,2382.TW,20240810044655,2024-08-10,https://hk.finance.yahoo.com/quote/2382.TW/analysis/,parse_failed,Failed to parse tables from HTML,2026-06-21 20:45:03
+2357,華碩,2357.TW,20240422181704,2024-04-22,https://finance.yahoo.com/quote/2357.TW/analysis,parse_failed,Failed to parse tables from HTML,2026-06-21 21:26:51
+4938,和碩,4938.TW,20220120131929,2022-01-20,https://sg.finance.yahoo.com/quote/4938.TW/analysis/,download_failed,Failed to download HTML,2026-06-21 21:46:28
+4938,和碩,4938.TW,20240424024711,2024-04-24,https://sg.finance.yahoo.com/quote/4938.TW/analysis/,download_failed,Failed to download HTML,2026-06-21 21:47:37
