@@ -34,3 +34,6 @@
 2357,華碩,2357.TW,20240422181704,2024-04-22,https://finance.yahoo.com/quote/2357.TW/analysis,parse_failed,Failed to parse tables from HTML,2026-06-21 21:26:51
 4938,和碩,4938.TW,20220120131929,2022-01-20,https://sg.finance.yahoo.com/quote/4938.TW/analysis/,download_failed,Failed to download HTML,2026-06-21 21:46:28
 4938,和碩,4938.TW,20240424024711,2024-04-24,https://sg.finance.yahoo.com/quote/4938.TW/analysis/,download_failed,Failed to download HTML,2026-06-21 21:47:37
+2337,旺宏,2337.TW,20220122062843,2022-01-22,https://sg.finance.yahoo.com/quote/2337.TW/analysis/,download_failed,Failed to download HTML,2026-06-23 02:10:32
+2337,旺宏,2337.TW,20220628134044,2022-06-28,https://sg.finance.yahoo.com/quote/2337.TW/analysis/,download_failed,Failed to download HTML,2026-06-23 02:11:28
+2337,旺宏,2337.TW,20221205222411,2022-12-05,https://sg.finance.yahoo.com/quote/2337.TW/analysis/,success,,2026-06-23 02:11:58
