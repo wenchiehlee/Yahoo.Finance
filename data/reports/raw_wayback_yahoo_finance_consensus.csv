@@ -1,2 +1,2 @@
-﻿stock_code,company_name,forecast_asof_date,earnings_0q_avg,earnings_1q_avg,earnings_0y_avg,earnings_1y_avg,revenue_0q_avg,revenue_1q_avg,revenue_0y_avg,revenue_1y_avg
-2337,旺宏,2022-12-05,1.06,0.79,5.7,3.97,10912500000.0,9929440000.0,46525300000.0,45422900000.0
+stock_code,company_name,forecast_asof_date,earnings_0q_avg,earnings_1q_avg,earnings_0y_avg,earnings_1y_avg,revenue_0q_avg,revenue_1q_avg,revenue_0y_avg,revenue_1y_avg,process_timestamp
+2337,旺宏,2022-12-05,1.06,0.79,5.7,3.97,10912500000.0,9929440000.0,46525300000.0,45422900000.0,2026-07-02 23:03:00 CST

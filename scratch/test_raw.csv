@@ -1,0 +1,115 @@
+﻿stock_code,company_name,market,yahoo_symbol,symbol_resolution_status,concept_name,source_url,section,source_method,period,metric,metric_zh,value,unit,currency,fetch_status,error_message,source_metadata_timestamp,download_timestamp,process_timestamp
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,0q,avg,平均值,186986311980.0,revenue,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,0q,low,最低值,174456000000.0,revenue,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,0q,high,最高值,193114469330.0,revenue,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,0q,numberOfAnalysts,分析師數量,12.0,count,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,0q,yearAgoRevenue,yearAgoRevenue,124035086000.0,revenue,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,0q,growth,成長率,0.5075,pct,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,+1q,avg,平均值,210279490570.0,revenue,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,+1q,low,最低值,185997000000.0,revenue,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,+1q,high,最高值,229425039090.0,revenue,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,+1q,numberOfAnalysts,分析師數量,12.0,count,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,+1q,yearAgoRevenue,yearAgoRevenue,150317577000.0,revenue,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,+1q,growth,成長率,0.3989,pct,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,0y,avg,平均值,773301841910.0,revenue,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,0y,low,最低值,720711000000.0,revenue,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,0y,high,最高值,832285000000.0,revenue,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,0y,numberOfAnalysts,分析師數量,17.0,count,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,0y,yearAgoRevenue,yearAgoRevenue,554885168000.0,revenue,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,0y,growth,成長率,0.39360002,pct,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,+1y,avg,平均值,1060615383729.0,revenue,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,+1y,low,最低值,691369600000.0,revenue,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,+1y,high,最高值,1282639000000.0,revenue,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,+1y,numberOfAnalysts,分析師數量,19.0,count,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,+1y,yearAgoRevenue,yearAgoRevenue,773301841910.0,revenue,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,收益預估,get_revenue_estimate,+1y,growth,成長率,0.37150002,pct,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,0q,avg,平均值,9.97487,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,0q,low,最低值,8.52087,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,0q,high,最高值,11.08,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,0q,yearAgoEps,去年EPS,5.36,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,0q,numberOfAnalysts,分析師數量,12.0,count,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,0q,growth,成長率,0.861,pct,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,+1q,avg,平均值,11.67301,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,+1q,low,最低值,10.5,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,+1q,high,最高值,12.69013,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,+1q,yearAgoEps,去年EPS,7.15,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,+1q,numberOfAnalysts,分析師數量,12.0,count,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,+1q,growth,成長率,0.6326,pct,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,0y,avg,平均值,40.91823,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,0y,low,最低值,35.56,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,0y,high,最高值,45.14,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,0y,yearAgoEps,去年EPS,23.08,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,0y,numberOfAnalysts,分析師數量,19.0,count,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,0y,growth,成長率,0.7729,pct,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,+1y,avg,平均值,65.80065,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,+1y,low,最低值,51.98,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,+1y,high,最高值,84.94,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,+1y,yearAgoEps,去年EPS,40.91823,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,+1y,numberOfAnalysts,分析師數量,18.0,count,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利預估,get_earnings_estimate,+1y,growth,成長率,0.6081,pct,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利記錄,get_earnings_history,2025-06-30 00:00:00,epsActual,EPS實際,5.36,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利記錄,get_earnings_history,2025-06-30 00:00:00,epsEstimate,EPS預估,4.40735,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利記錄,get_earnings_history,2025-06-30 00:00:00,epsDifference,EPS差異,0.95,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利記錄,get_earnings_history,2025-06-30 00:00:00,surprisePercent,驚喜百分比,0.21620001,pct,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利記錄,get_earnings_history,2025-09-30 00:00:00,epsActual,EPS實際,7.15,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利記錄,get_earnings_history,2025-09-30 00:00:00,epsEstimate,EPS預估,6.8945,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利記錄,get_earnings_history,2025-09-30 00:00:00,epsDifference,EPS差異,0.26,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利記錄,get_earnings_history,2025-09-30 00:00:00,surprisePercent,驚喜百分比,0.037100002,pct,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利記錄,get_earnings_history,2025-12-31 00:00:00,epsActual,EPS實際,6.65,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利記錄,get_earnings_history,2025-12-31 00:00:00,epsEstimate,EPS預估,7.54245,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利記錄,get_earnings_history,2025-12-31 00:00:00,epsDifference,EPS差異,-0.89,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利記錄,get_earnings_history,2025-12-31 00:00:00,surprisePercent,驚喜百分比,-0.1183,pct,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利記錄,get_earnings_history,2026-03-31 00:00:00,epsActual,EPS實際,7.0,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利記錄,get_earnings_history,2026-03-31 00:00:00,epsEstimate,EPS預估,7.4582,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利記錄,get_earnings_history,2026-03-31 00:00:00,epsDifference,EPS差異,-0.46,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,盈利記錄,get_earnings_history,2026-03-31 00:00:00,surprisePercent,驚喜百分比,-0.0614,pct,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利走勢,get_eps_trend,0q,current,目前,9.97487,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利走勢,get_eps_trend,0q,7daysAgo,7天前,9.95142,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利走勢,get_eps_trend,0q,30daysAgo,30天前,9.88373,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利走勢,get_eps_trend,0q,60daysAgo,60天前,9.09036,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利走勢,get_eps_trend,0q,90daysAgo,90天前,8.78869,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利走勢,get_eps_trend,+1q,current,目前,11.67301,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利走勢,get_eps_trend,+1q,7daysAgo,7天前,11.68431,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利走勢,get_eps_trend,+1q,30daysAgo,30天前,11.6297,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利走勢,get_eps_trend,+1q,60daysAgo,60天前,10.82378,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利走勢,get_eps_trend,+1q,90daysAgo,90天前,10.37271,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利走勢,get_eps_trend,0y,current,目前,40.91823,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利走勢,get_eps_trend,0y,7daysAgo,7天前,41.55146,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利走勢,get_eps_trend,0y,30daysAgo,30天前,41.67355,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利走勢,get_eps_trend,0y,60daysAgo,60天前,38.0048,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利走勢,get_eps_trend,0y,90daysAgo,90天前,36.94527,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利走勢,get_eps_trend,+1y,current,目前,65.80065,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利走勢,get_eps_trend,+1y,7daysAgo,7天前,64.96009,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利走勢,get_eps_trend,+1y,30daysAgo,30天前,64.51756,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利走勢,get_eps_trend,+1y,60daysAgo,60天前,54.9787,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利走勢,get_eps_trend,+1y,90daysAgo,90天前,53.58865,eps,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利修改,get_eps_revisions,0q,upLast7days,近7天上修,2,count,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利修改,get_eps_revisions,0q,upLast30days,近30天上修,2,count,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利修改,get_eps_revisions,0q,downLast30days,近30天下修,0,count,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利修改,get_eps_revisions,0q,downLast7Days,downLast7Days,0,,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利修改,get_eps_revisions,+1q,upLast7days,近7天上修,1,count,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利修改,get_eps_revisions,+1q,upLast30days,近30天上修,1,count,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利修改,get_eps_revisions,+1q,downLast30days,近30天下修,1,count,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利修改,get_eps_revisions,+1q,downLast7Days,downLast7Days,1,,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利修改,get_eps_revisions,0y,upLast7days,近7天上修,1,count,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利修改,get_eps_revisions,0y,upLast30days,近30天上修,1,count,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利修改,get_eps_revisions,0y,downLast30days,近30天下修,0,count,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利修改,get_eps_revisions,0y,downLast7Days,downLast7Days,0,,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利修改,get_eps_revisions,+1y,upLast7days,近7天上修,2,count,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利修改,get_eps_revisions,+1y,upLast30days,近30天上修,4,count,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利修改,get_eps_revisions,+1y,downLast30days,近30天下修,0,count,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,每股盈利修改,get_eps_revisions,+1y,downLast7Days,downLast7Days,0,,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,預計增長,get_growth_estimates,0q,stockTrend,公司成長,0.861,pct,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,預計增長,get_growth_estimates,0q,indexTrend,指數成長,0.2598,pct,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,預計增長,get_growth_estimates,+1q,stockTrend,公司成長,0.6326,pct,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,預計增長,get_growth_estimates,+1q,indexTrend,指數成長,0.2045,pct,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,預計增長,get_growth_estimates,0y,stockTrend,公司成長,0.7729,pct,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,預計增長,get_growth_estimates,0y,indexTrend,指數成長,0.233,pct,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,預計增長,get_growth_estimates,+1y,stockTrend,公司成長,0.6081,pct,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,預計增長,get_growth_estimates,+1y,indexTrend,指數成長,0.1725,pct,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,預計增長,get_growth_estimates,LTG,indexTrend,指數成長,0.122,pct,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,分析師目標價,analyst_price_targets,1y,current,目前,1810.0,price,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,分析師目標價,analyst_price_targets,1y,high,最高值,4500.0,price,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,分析師目標價,analyst_price_targets,1y,low,最低值,1270.0,price,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,分析師目標價,analyst_price_targets,1y,mean,平均值,2697.2104,price,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
+2308,台達電,TW,2308.TW,resolved,,https://hk.finance.yahoo.com/quote/2308.TW/analysis/,分析師目標價,analyst_price_targets,1y,median,中位數,2700.0,price,TWD,success,,,2026-06-26 07:32:50,2026-06-26 07:32:48
