@@ -410,6 +410,7 @@ WAYBACK_OUTPUT_COLUMNS = [
     "revenue_1q_avg",
     "revenue_0y_avg",
     "revenue_1y_avg",
+    "process_timestamp",
 ]
 
 COVERAGE_COLUMNS = [
@@ -747,6 +748,7 @@ def main():
                 "company_name": name,
                 "forecast_asof_date": asof_date,
                 **metrics,
+                "process_timestamp": utc_now(),
             }
             all_records.append(record)
             append_coverage_row(coverage_csv, make_coverage_row(t, yahoo_symbol, snap, asof_date, "success", ""))

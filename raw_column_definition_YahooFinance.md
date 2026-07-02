@@ -134,6 +134,7 @@ destination: downstream definitions/raw_column_definition_YahooFinance.md
 | `revenue_1q_avg` | float | Next-quarter average revenue estimate | Archived Yahoo revenue estimate table | Numeric values normalize `K/M/B/T` suffixes |
 | `revenue_0y_avg` | float | Current-year average revenue estimate | Archived Yahoo revenue estimate table | Numeric values normalize `K/M/B/T` suffixes |
 | `revenue_1y_avg` | float | Next-year average revenue estimate | Archived Yahoo revenue estimate table | Numeric values normalize `K/M/B/T` suffixes |
+| `process_timestamp` | datetime | Row ingestion timestamp for this historical consensus item | System | `YYYY-MM-DD HH:MM:SS` or CST-suffixed timestamp; used for freshness monitoring |
 
 ---
 
