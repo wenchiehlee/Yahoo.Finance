@@ -5,5 +5,7 @@ group:
         dest:   data/YahooFinance/raw_yahoo_finance_daily_price.csv
       - source: raw_column_definition_YahooFinance.md
         dest:   definitions/raw_column_definition_YahooFinance.md
+      - source: StockID_TWSE_TPEX_focus.csv
+        dest:   data/YahooFinance/StockID_TWSE_TPEX_focus.csv
     repos: |
       WJLEE1020/GoogleSheet.Banks
