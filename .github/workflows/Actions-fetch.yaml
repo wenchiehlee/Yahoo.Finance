@@ -33,6 +33,7 @@ jobs:
       SYNC_PAT_ANALYZER: ${{ secrets.REPO_FILE_SYNC_WENCHIEHLEE_INVESTMENT }}
       SYNC_PAT_BIZTRENDS: ${{ secrets.REPO_FILE_SYNC_WENCHIEHLEE_MONEY }}
       SYNC_PAT_TAIEX: ${{ secrets.REPO_FILE_SYNC_WENCHIEHLEE_MONEY }}
+      SYNC_PAT_GSBANKS: ${{ secrets.REPO_FILE_SYNC_WJLEE1020_MONEY }}
     timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
@@ -77,6 +78,12 @@ jobs:
           SUMMARY_OUTPUT="data/reports/raw_yahoo_finance_summary_latest.csv"
           python process_group/process_cli.py --raw-csv "$RAW_OUTPUT" --output-csv "$SUMMARY_OUTPUT"
 
+      - name: Fetch 2y daily price history (TW + US)
+        run: |
+          python fetch_group/fetch_daily_price.py \
+            --output-csv data/reports/raw_yahoo_finance_daily_price.csv
+        continue-on-error: true
+
       - name: Configure git author
         run: |
           git config user.name "github-actions[bot]"
@@ -88,6 +95,7 @@ jobs:
           git add data/reports/raw_yahoo_finance.csv
           git add data/reports/raw_yahoo_finance_summary_latest.csv
           git add data/reports/raw_wayback_coverage_matrix.csv
+          git add data/reports/raw_yahoo_finance_daily_price.csv
           if git diff --staged --quiet; then
             echo "No base Yahoo report changes to commit"
           else
@@ -149,6 +157,16 @@ jobs:
           PR_LABELS: "automated-sync"
           SKIP_PR: true
 
+      - name: Sync daily price history to GoogleSheet.Banks
+        if: env.SYNC_PAT_GSBANKS != ''
+        uses: BetaHuhn/repo-file-sync-action@v1
+        with:
+          GH_PAT: ${{ env.SYNC_PAT_GSBANKS }}
+          CONFIG_PATH: .github/sync-to-GoogleSheet.Banks.yml
+          COMMIT_EACH_FILE: false
+          PR_LABELS: "automated-sync"
+          SKIP_PR: true
+
       - name: Sync skip notices
         run: |
           if [ -z "$SYNC_PAT_ANALYZER" ]; then
@@ -156,4 +174,7 @@ jobs:
           fi
           if [ -z "$SYNC_PAT_BIZTRENDS" ]; then
             echo "::warning::REPO_FILE_SYNC_WENCHIEHLEE_MONEY is not configured; skipping biztrends.TW sync."
+          fi
+          if [ -z "$SYNC_PAT_GSBANKS" ]; then
+            echo "::warning::REPO_FILE_SYNC_WJLEE1020_MONEY is not configured; skipping GoogleSheet.Banks sync."
           fi

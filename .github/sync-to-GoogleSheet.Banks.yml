@@ -1,0 +1,7 @@
+# .github/sync-to-GoogleSheet.Banks.yml
+group:
+  - files:
+      - source: data/reports/raw_yahoo_finance_daily_price.csv
+        dest:   data/YahooFinance/raw_yahoo_finance_daily_price.csv
+    repos: |
+      WJLEE1020/GoogleSheet.Banks
