@@ -3,5 +3,7 @@ group:
   - files:
       - source: data/reports/raw_yahoo_finance_daily_price.csv
         dest:   data/YahooFinance/raw_yahoo_finance_daily_price.csv
+      - source: raw_column_definition_YahooFinance.md
+        dest:   definitions/raw_column_definition_YahooFinance.md
     repos: |
       WJLEE1020/GoogleSheet.Banks

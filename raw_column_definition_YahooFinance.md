@@ -168,3 +168,28 @@ destination: downstream definitions/raw_column_definition_YahooFinance.md
 | `message` | string | Error or status details | System | Blank for `success` |
 | `process_timestamp` | datetime | UTC timestamp when the coverage row was written | System | `YYYY-MM-DD HH:MM:SS` |
 
+---
+
+## raw_yahoo_finance_daily_price.csv (Yahoo Finance Daily OHLC Price History, Long Format)
+
+**Source:** `data/reports/raw_yahoo_finance_daily_price.csv`
+**Data Source:** yfinance `download()` OHLC history, `period="2y"`, `auto_adjust=True`
+**Update Frequency:** Daily automated updates (same schedule as `raw_yahoo_finance.csv`)
+**Extraction Strategy:** For each TW watchlist code (`StockID_TWSE_TPEX.csv`), try `.TW` then `.TWO` and keep whichever suffix returns data (avoids maintaining a separate listed/OTC lookup table). For each US ticker in `data/ConceptStocks/raw_conceptstock_company_metadata.csv` (`Ticker` column, placeholder `-` rows skipped), fetch directly by ticker. One row per symbol per trading day, covering ~2 years so downstream 252-trading-day rolling windows (52-week high/low) have enough history — GoodInfo's `ShowDailyK_ChartFlow` source only retains ~1 year, which is too short for that window.
+
+### Columns
+
+| Column | Type | Description | Source Field | Notes |
+|---|---|---|---|---|
+| `stock_code` | string | Original stock code or ticker | TW list `代號`; ConceptStocks `Ticker` | e.g., `2330`, `TSM` |
+| `company_name` | string | Company display name | TW list `名稱`; ConceptStocks `公司名稱` |  |
+| `market` | string | Market code | System | `TW` or `US` (TW includes both listed and OTC; see `yahoo_symbol` for the resolved suffix) |
+| `yahoo_symbol` | string | Resolved Yahoo Finance ticker symbol | System | e.g., `2330.TW`, `8299.TWO`, `TSM` |
+| `交易_日期` | date | Trading date | yfinance index | `YYYY-MM-DD` |
+| `開盤價` | float | Open price (split/dividend adjusted) | yfinance `Open` |  |
+| `最高價` | float | High price (split/dividend adjusted) | yfinance `High` |  |
+| `最低價` | float | Low price (split/dividend adjusted) | yfinance `Low` |  |
+| `收盤價` | float | Close price (split/dividend adjusted) | yfinance `Close` | Primary field used for RSI/MA/52-week indicators downstream |
+| `volume` | float | Trading volume | yfinance `Volume` |  |
+| `download_timestamp` | datetime | Retrieval timestamp (shared across all rows fetched for a given symbol in one run) | System | UTC `YYYY-MM-DD HH:MM:SS` |
+
