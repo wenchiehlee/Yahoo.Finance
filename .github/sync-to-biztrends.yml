@@ -5,6 +5,8 @@ group:
         dest:   data/Yahoo.Finance/raw_yahoo_finance_summary_latest.csv
       - source: data/reports/raw_yahoo_finance.csv
         dest:   data/Yahoo.Finance/raw_yahoo_finance.csv
+      - source: data/reports/raw_yahoo_finance_intraday_60m.csv
+        dest:   data/Yahoo.Finance/raw_yahoo_finance_intraday_60m.csv
       - source: data/reports/raw_wayback_yahoo_finance_consensus.csv
         dest:   data/Yahoo.Finance/raw_wayback_yahoo_finance_consensus.csv
       - source: data/reports/wayback_yahoo_finance_consensus.csv

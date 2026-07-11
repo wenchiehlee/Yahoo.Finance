@@ -84,6 +84,12 @@ jobs:
             --output-csv data/reports/raw_yahoo_finance_daily_price.csv
         continue-on-error: true
 
+      - name: Fetch 60-minute intraday price history (TW only)
+        run: |
+          python fetch_group/fetch_intraday_60m.py \
+            --output-csv data/reports/raw_yahoo_finance_intraday_60m.csv
+        continue-on-error: true
+
       - name: Configure git author
         run: |
           git config user.name "github-actions[bot]"
@@ -96,6 +102,7 @@ jobs:
           git add data/reports/raw_yahoo_finance_summary_latest.csv
           git add data/reports/raw_wayback_coverage_matrix.csv
           git add data/reports/raw_yahoo_finance_daily_price.csv
+          git add data/reports/raw_yahoo_finance_intraday_60m.csv
           if git diff --staged --quiet; then
             echo "No base Yahoo report changes to commit"
           else

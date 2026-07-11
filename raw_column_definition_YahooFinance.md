@@ -193,3 +193,27 @@ destination: downstream definitions/raw_column_definition_YahooFinance.md
 | `volume` | float | Trading volume | yfinance `Volume` |  |
 | `download_timestamp` | datetime | Retrieval timestamp (shared across all rows fetched for a given symbol in one run) | System | UTC `YYYY-MM-DD HH:MM:SS` |
 
+---
+
+## raw_yahoo_finance_intraday_60m.csv (Yahoo Finance 60-Minute Intraday OHLC Price History, TW Only, Long Format)
+
+**Source:** `data/reports/raw_yahoo_finance_intraday_60m.csv`
+**Data Source:** yfinance `download()` OHLC history, `interval="60m"`, `period="730d"` (bootstrap), `auto_adjust=True`
+**Update Frequency:** Daily automated updates (same schedule as `raw_yahoo_finance_daily_price.csv`)
+**Extraction Strategy:** TW watchlist only (`StockID_TWSE_TPEX.csv`); US concept-stock tickers are excluded since this feed only serves `volume_profile()` in `GoogleSheet.Banks/fugle_stock_advisor.py`, which is TW-only (停泊股 park-stock ranking). Try `.TW` then `.TWO` per code, same suffix-resolution approach as the daily feed. One row per symbol per ~1-hour bar (roughly 5 bars/trading day, 9:00–13:30 TWSE session), replacing the prior approach of approximating intraday price/volume distribution from daily OHLC (which assumed each day's volume was spread uniformly across that day's high-low range) with real sub-daily bars — still not tick-level granularity, but the finest interval yfinance offers with a multi-year lookback for free. **Incremental:** a symbol already present in the existing CSV only refetches from (last stored bar's date − 3 days) through now; a symbol with no prior rows bootstraps the full available history (yfinance's `60m` interval returns roughly the last 2–3 years depending on symbol). Merged output is capped to the most recent 730 days. Pass `--full-refresh` to ignore the existing CSV and re-bootstrap every symbol.
+
+### Columns
+
+| Column | Type | Description | Source Field | Notes |
+|---|---|---|---|---|
+| `stock_code` | string | Original TW stock code | TW list `代號` | e.g., `2330` |
+| `company_name` | string | Company display name | TW list `名稱` |  |
+| `yahoo_symbol` | string | Resolved Yahoo Finance ticker symbol | System | e.g., `2330.TW`, `8299.TWO` |
+| `時間戳` | datetime | Bar timestamp (bar start, exchange-local via yfinance) | yfinance index | `YYYY-MM-DD HH:MM:SS%z`, one row per ~60-minute bar |
+| `開盤價` | float | Open price (split/dividend adjusted) | yfinance `Open` |  |
+| `最高價` | float | High price (split/dividend adjusted) | yfinance `High` |  |
+| `最低價` | float | Low price (split/dividend adjusted) | yfinance `Low` |  |
+| `收盤價` | float | Close price (split/dividend adjusted) | yfinance `Close` |  |
+| `volume` | float | Trading volume within the bar | yfinance `Volume` | Distributed across this bar's high-low range in `volume_profile()`, not the whole trading day |
+| `download_timestamp` | datetime | Retrieval timestamp (shared across all rows fetched for a given symbol in one run) | System | UTC `YYYY-MM-DD HH:MM:SS` |
+

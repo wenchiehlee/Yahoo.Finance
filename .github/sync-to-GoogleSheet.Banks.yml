@@ -3,6 +3,8 @@ group:
   - files:
       - source: data/reports/raw_yahoo_finance_daily_price.csv
         dest:   data/YahooFinance/raw_yahoo_finance_daily_price.csv
+      - source: data/reports/raw_yahoo_finance_intraday_60m.csv
+        dest:   data/YahooFinance/raw_yahoo_finance_intraday_60m.csv
       - source: data/reports/raw_yahoo_finance_summary_latest.csv
         dest:   data/YahooFinance/raw_yahoo_finance_summary_latest.csv
       - source: raw_column_definition_YahooFinance.md
