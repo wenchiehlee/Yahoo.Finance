@@ -52,6 +52,7 @@ class ReportGenerator:
 
         rows = []
         for item in grouped.values():
+            self._finalize_earnings_history(item)
             self._apply_factset_cross_check(item, factset, current_year)
             item["forecast_asof_date"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
             item["process_timestamp"] = process_ts
@@ -114,17 +115,62 @@ class ReportGenerator:
             if period in {"+5y", "0y", ""}:
                 item["growth_5y_stock"] = format_float(value)
         elif section == "每股盈利修改":
-            if period == "0q" and metric == "upLast7days":
+            # Yahoo 的 metric 命名大小寫不一致（upLast7days 但 downLast7Days），統一用
+            # lower() 比對——原本精確比對 "downLast7days" 永遠比不中，down_7d 欄位從來
+            # 沒有值，下游「上修次數 > 下修次數」的判斷等於跟空值比較，永遠不成立。
+            metric_lc = metric.lower()
+            if period == "0q" and metric_lc == "uplast7days":
                 item["eps_revision_0q_up_7d"] = format_float(value)
-            elif period == "0q" and metric == "downLast7days":
+            elif period == "0q" and metric_lc == "downlast7days":
                 item["eps_revision_0q_down_7d"] = format_float(value)
+            elif period == "0q" and metric_lc == "uplast30days":
+                item["eps_revision_0q_up_30d"] = format_float(value)
+            elif period == "0q" and metric_lc == "downlast30days":
+                item["eps_revision_0q_down_30d"] = format_float(value)
+        elif section == "每股盈利走勢":
+            # 分析師預估值的時間序列（現在 vs 90天前）——比 7 天上修/下修「次數」更穩定的
+            # 修正動能訊號：直接看預估值本身往哪個方向、動了多少幅度。
+            if period in {"0y", "+1y"} and metric in {"current", "90daysAgo"}:
+                suffix = "current" if metric == "current" else "90d_ago"
+                period_key = "0y" if period == "0y" else "1y"
+                item[f"eps_trend_{period_key}_{suffix}"] = format_float(value)
         elif section == "盈利記錄":
-            if metric == "epsEstimate":
-                item["last_eps_estimate"] = format_float(value)
-                item["last_earnings_date"] = period
-            elif metric == "epsActual":
-                item["last_eps_actual"] = format_float(value)
-                item.setdefault("last_earnings_date", period)
+            # 依 period（財報季度日期，ISO 格式可直接字典序比大小）累積每一季的
+            # 實際/預估/驚喜，generate() 收尾時再彙總成 last_* 與近4季統計欄位。
+            # 原本的寫法是「後讀到的列覆蓋先前的」，last_* 會隨檔案列序漂移，不一定是最新一季。
+            hist = item.setdefault("_earnings_hist", {})
+            if metric in {"epsActual", "epsEstimate", "surprisePercent"}:
+                hist.setdefault(period, {})[metric] = value
+
+    def _finalize_earnings_history(self, item: Dict) -> None:
+        """把 _apply_metric 累積的逐季盈利記錄彙總成輸出欄位：
+        - last_earnings_date / last_eps_estimate / last_eps_actual：日期最新的那一季
+        - eps_beat_count_4q：近4季（不足4季就以現有季數計）實際EPS ≥ 預估的季數，格式 "3/4"
+        - eps_surprise_avg_4q_pct：近4季 surprisePercent 平均（百分比數值，0.02 → 2.0）"""
+        hist = item.pop("_earnings_hist", None)
+        if not hist:
+            return
+        periods = sorted(hist.keys())  # ISO 日期字串，字典序＝時間序
+        latest = hist[periods[-1]]
+        item["last_earnings_date"] = periods[-1]
+        item["last_eps_estimate"] = format_float(latest.get("epsEstimate"))
+        item["last_eps_actual"] = format_float(latest.get("epsActual"))
+
+        recent = [hist[p] for p in periods[-4:]]
+        beats, total = 0, 0
+        surprises = []
+        for q in recent:
+            actual, est = q.get("epsActual"), q.get("epsEstimate")
+            if actual is not None and est is not None:
+                total += 1
+                if actual >= est:
+                    beats += 1
+            if q.get("surprisePercent") is not None:
+                surprises.append(q["surprisePercent"])
+        if total:
+            item["eps_beat_count_4q"] = f"{beats}/{total}"
+        if surprises:
+            item["eps_surprise_avg_4q_pct"] = format_float(sum(surprises) / len(surprises) * 100)
 
     def _load_factset(self, path: str) -> Dict[str, Dict[str, str]]:
         rows = self._read_rows(path)
@@ -221,8 +267,12 @@ class ReportGenerator:
             "days_to_investor_event", "earnings_0q_avg", "earnings_1q_avg", "earnings_0y_avg",
             "earnings_1y_avg", "revenue_0q_avg", "revenue_1q_avg", "revenue_0y_avg",
             "revenue_1y_avg", "growth_5y_stock", "eps_revision_0q_up_7d",
-            "eps_revision_0q_down_7d", "last_earnings_date", "last_eps_estimate",
-            "last_eps_actual", "factset_available", "factset_md_latest_date",
+            "eps_revision_0q_down_7d", "eps_revision_0q_up_30d", "eps_revision_0q_down_30d",
+            "eps_trend_0y_current", "eps_trend_0y_90d_ago",
+            "eps_trend_1y_current", "eps_trend_1y_90d_ago",
+            "last_earnings_date", "last_eps_estimate",
+            "last_eps_actual", "eps_beat_count_4q", "eps_surprise_avg_4q_pct",
+            "factset_available", "factset_md_latest_date",
             "factset_quality_score", "factset_eps_current_year_avg", "eps_current_year_diff",
             "eps_current_year_diff_pct", "factset_eps_next_year_avg", "eps_next_year_diff",
             "eps_next_year_diff_pct", "factset_revenue_current_year_avg",

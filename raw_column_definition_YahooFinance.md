@@ -81,10 +81,18 @@ destination: downstream definitions/raw_column_definition_YahooFinance.md
 | `revenue_1y_avg` | float | Next-year average revenue estimate | Yahoo `收益預估` | period `+1y`, metric `avg` |
 | `growth_5y_stock` | float | Long-term growth estimate | Yahoo `預計增長` | Usually period `+5y` |
 | `eps_revision_0q_up_7d` | float | Current-quarter EPS estimate upward revisions in last 7 days | Yahoo `每股盈利修改` |  |
-| `eps_revision_0q_down_7d` | float | Current-quarter EPS estimate downward revisions in last 7 days | Yahoo `每股盈利修改` |  |
-| `last_earnings_date` | date/string | Latest earnings history period | Yahoo `盈利記錄` |  |
+| `eps_revision_0q_down_7d` | float | Current-quarter EPS estimate downward revisions in last 7 days | Yahoo `每股盈利修改` | Metric name case differs upstream (`downLast7Days`); matched case-insensitively |
+| `eps_revision_0q_up_30d` | float | Current-quarter EPS estimate upward revisions in last 30 days | Yahoo `每股盈利修改` |  |
+| `eps_revision_0q_down_30d` | float | Current-quarter EPS estimate downward revisions in last 30 days | Yahoo `每股盈利修改` |  |
+| `eps_trend_0y_current` | float | Current-year EPS estimate, current value | Yahoo `每股盈利走勢` | period `0y`, metric `current` |
+| `eps_trend_0y_90d_ago` | float | Current-year EPS estimate as of ~90 days ago | Yahoo `每股盈利走勢` | Compare with `eps_trend_0y_current` for revision momentum |
+| `eps_trend_1y_current` | float | Next-year EPS estimate, current value | Yahoo `每股盈利走勢` | period `+1y`, metric `current` |
+| `eps_trend_1y_90d_ago` | float | Next-year EPS estimate as of ~90 days ago | Yahoo `每股盈利走勢` |  |
+| `last_earnings_date` | date/string | Latest earnings history period (max date, not file order) | Yahoo `盈利記錄` |  |
 | `last_eps_estimate` | float | Latest historical EPS estimate | Yahoo `盈利記錄` |  |
 | `last_eps_actual` | float | Latest historical EPS actual | Yahoo `盈利記錄` |  |
+| `eps_beat_count_4q` | string | Quarters (of last ≤4) where actual EPS ≥ estimate, e.g. `3/4` | Yahoo `盈利記錄` |  |
+| `eps_surprise_avg_4q_pct` | float | Average earnings surprise % over last ≤4 quarters | Yahoo `盈利記錄` | `surprisePercent` × 100 (0.02 → 2.0) |
 | `factset_available` | boolean | Whether FactSet row is available | FactSet report |  |
 | `factset_md_latest_date` | date | Latest FactSet markdown date | FactSet `MD最新日期` |  |
 | `factset_quality_score` | float | FactSet quality score | FactSet `品質評分` |  |
