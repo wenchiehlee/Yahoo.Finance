@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Fetch ~2 年逐日收盤價（TW 觀察名單 + ConceptStocks 美股 Ticker），輸出長格式 CSV。
+"""Fetch ~10 年逐日收盤價（TW 觀察名單 + ConceptStocks 美股 Ticker），輸出長格式 CSV。
 
-給 GoogleSheet.Banks/fugle_stock_advisor.py 的買進時機評分用（RSI/MA60/MA200/52週高低），
+給 GoogleSheet.Banks/fugle_stock_advisor.py 的買進時機評分用（RSI/MA60~MA360/52週高低），
 取代原本每次執行都即時打 yfinance 的做法，改成每日排程先抓好存成 CSV 再同步過去。
 
 增量抓取：已有資料的代號只抓「既有最後一筆日期 - 緩衝天數」到今天（緩衝天數是為了蓋掉
 yfinance auto_adjust 對近期資料的回溯修正，不是單純漏抓一天就永遠補不回來），跟舊資料合併
 （同一天以新抓的為準）後只保留最近 RETENTION_DAYS 天，避免 CSV 隨時間無限增大，也避免每天
-重抓整段 2 年、既慢又浪費 API 額度。全新代號（舊資料裡完全沒有）才整段抓 2 年當作 bootstrap。
+重抓整段歷史、既慢又浪費 API 額度。全新代號（舊資料裡完全沒有）才整段抓 BOOTSTRAP_PERIOD
+當作 bootstrap。
 
 台股不預先假設上市（.TW）或上櫃（.TWO），兩個 suffix 都試，抓得到資料的那個就是對的
 （避免另外維護一份跟 GoogleSheet.Banks 裡 TWO_CODES 重複、容易兜不齊的清單）。
@@ -34,7 +35,11 @@ RAW_COLUMNS = [
 ]
 
 INCREMENTAL_OVERLAP_DAYS = 5  # 從「既有最後一筆日期 - 這麼多天」開始重抓，蓋掉近期可能被回溯修正的資料
-RETENTION_DAYS = 760          # 只保留最近這麼多天，留一點餘裕給 252 個交易日的滾動視窗
+BOOTSTRAP_PERIOD = "10y"      # 全新代號／--full-refresh 一次抓的歷史長度
+RETENTION_DAYS = 3650         # 只保留最近這麼多天（約10年）——2026-07 從 760 拉長：使用者希望
+                              # 盡量保留歷史（MA360 等長視窗指標的回測需要「算得出指標之後」還有
+                              # 夠多樣本）。10年約 50MB CSV，是 GitHub 100MB 單檔硬上限下能安全
+                              # 放的量（每年約 +5MB）；要再長就得換壓縮格式或按市場拆檔，先不動架構。
 
 
 def utc_now() -> str:
@@ -71,7 +76,7 @@ def load_us_targets(path: Path):
 
 def load_existing_by_code(path: Path):
     """回傳 {stock_code: [row dict, ...]}。代號不在裡面（新代號／檔案第一次產生）時，
-    呼叫端會退回整段 2 年 bootstrap 抓取。"""
+    呼叫端會退回整段 BOOTSTRAP_PERIOD bootstrap 抓取。"""
     by_code = {}
     for row in read_csv_rows(path):
         by_code.setdefault(row.get("stock_code", ""), []).append(row)
@@ -83,7 +88,7 @@ def fetch_history(yahoo_symbol: str, start: str | None = None):
         if start:
             hist = yf.download(yahoo_symbol, start=start, progress=False, auto_adjust=True)
         else:
-            hist = yf.download(yahoo_symbol, period="2y", progress=False, auto_adjust=True)
+            hist = yf.download(yahoo_symbol, period=BOOTSTRAP_PERIOD, progress=False, auto_adjust=True)
     except Exception:
         return None
     if hist is None or hist.empty:
@@ -133,7 +138,7 @@ def fetch_one(code, name, market, resolve_symbols, existing_by_code, sleep_sec):
             start = (datetime.strptime(last_date, "%Y-%m-%d") - timedelta(days=INCREMENTAL_OVERLAP_DAYS)).strftime("%Y-%m-%d")
             hist = fetch_history(symbol, start=start)
         else:
-            hist = fetch_history(symbol)  # 全新代號，整段 2 年 bootstrap
+            hist = fetch_history(symbol)  # 全新代號，整段 BOOTSTRAP_PERIOD bootstrap
         if hist is not None:
             new_rows = rows_from_history(code, name, market, symbol, hist)
             merged = merge_rows(existing, new_rows, RETENTION_DAYS) if existing else new_rows
@@ -182,7 +187,7 @@ def main():
     parser.add_argument("--output-csv", default=str(REPO_ROOT / "data" / "reports" / "raw_yahoo_finance_daily_price.csv"))
     parser.add_argument("--sleep-sec", type=float, default=0.3)
     parser.add_argument("--full-refresh", action="store_true",
-                         help="忽略既有 CSV，全部代號整段重抓 2 年（正常增量抓取失效或要重建基準線時用）")
+                         help="忽略既有 CSV，全部代號整段重抓 BOOTSTRAP_PERIOD（正常增量抓取失效或要重建基準線時用）")
     args = parser.parse_args()
 
     out_path = Path(args.output_csv)
