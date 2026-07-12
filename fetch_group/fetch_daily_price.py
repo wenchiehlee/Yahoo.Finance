@@ -36,6 +36,19 @@ RAW_COLUMNS = [
 
 INCREMENTAL_OVERLAP_DAYS = 5  # 從「既有最後一筆日期 - 這麼多天」開始重抓，蓋掉近期可能被回溯修正的資料
 BOOTSTRAP_PERIOD = "10y"      # 全新代號／--full-refresh 一次抓的歷史長度
+
+# 總經/大盤脈絡代號（GoogleSheet.Banks 的 --pre-market 開盤前簡報用）：美股四大指數、
+# 台幣匯率、NASDAQ 期貨。跟個股走同一個長格式 CSV、同一套增量抓取，market 標記 "MACRO"。
+# AI 領頭個股（NVDA/AVGO/AMD/MSFT/TSM）不在這裡——它們經由 ConceptStocks 的 US ticker
+# 清單本來就會被抓。
+MACRO_SYMBOLS = [
+    ("^DJI",  "道瓊工業指數"),
+    ("^GSPC", "S&P500指數"),
+    ("^IXIC", "那斯達克指數"),
+    ("^SOX",  "費城半導體指數"),
+    ("TWD=X", "美元兌台幣"),
+    ("NQ=F",  "那斯達克100期貨"),
+]
 RETENTION_DAYS = 3650         # 只保留最近這麼多天（約10年）——2026-07 從 760 拉長：使用者希望
                               # 盡量保留歷史（MA360 等長視窗指標的回測需要「算得出指標之後」還有
                               # 夠多樣本）。10年約 50MB CSV，是 GitHub 100MB 單檔硬上限下能安全
@@ -180,6 +193,21 @@ def fetch_us(targets, existing_by_code, sleep_sec):
     return all_rows, failed
 
 
+def fetch_macro(existing_by_code, sleep_sec):
+    all_rows, failed = [], []
+    for symbol, name in MACRO_SYMBOLS:
+        merged, resolved = fetch_one(symbol, name, "MACRO", [symbol], existing_by_code, sleep_sec)
+        if merged is not None:
+            all_rows.extend(merged)
+            print(f"  MACRO {symbol} {name}: OK")
+        else:
+            failed.append(symbol)
+            all_rows.extend(existing_by_code.get(symbol, []))
+            print(f"  MACRO {symbol} {name}: FAILED")
+        time.sleep(sleep_sec)
+    return all_rows, failed
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--tw-list", default=str(REPO_ROOT / "StockID_TWSE_TPEX.csv"))
@@ -201,8 +229,10 @@ def main():
     tw_rows, tw_failed = fetch_tw(tw_targets, existing_by_code, args.sleep_sec)
     print("== 抓取美股 ==")
     us_rows, us_failed = fetch_us(us_targets, existing_by_code, args.sleep_sec)
+    print("== 抓取總經/大盤脈絡（指數/匯率/期貨） ==")
+    macro_rows, macro_failed = fetch_macro(existing_by_code, args.sleep_sec)
 
-    all_rows = tw_rows + us_rows
+    all_rows = tw_rows + us_rows + macro_rows
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w", encoding="utf-8-sig", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=RAW_COLUMNS)
@@ -214,6 +244,8 @@ def main():
         print(f"TW 這次抓取失敗（沿用舊資料）: {', '.join(tw_failed)}")
     if us_failed:
         print(f"US 這次抓取失敗（沿用舊資料）: {', '.join(us_failed)}")
+    if macro_failed:
+        print(f"MACRO 這次抓取失敗（沿用舊資料）: {', '.join(macro_failed)}")
 
 
 if __name__ == "__main__":

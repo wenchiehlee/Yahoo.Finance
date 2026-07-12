@@ -42,6 +42,12 @@ BOOTSTRAP_PERIOD = "730d"    # yfinance 60m interval 最長回溯範圍
 INCREMENTAL_OVERLAP_DAYS = 3  # 從「既有最後一筆時間戳 - 這麼多天」開始重抓，蓋掉近期可能還沒收斂的棒
 RETENTION_DAYS = 730
 
+# 非台股的額外代號（原樣使用、不做 .TW/.TWO 解析）：NQ=F 的台北 08 時小時棒是
+# GoogleSheet.Banks --pre-market 開盤前簡報「早上看期貨」的歷史對照資料。
+EXTRA_SYMBOLS = [
+    ("NQ=F", "那斯達克100期貨"),
+]
+
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
@@ -169,13 +175,26 @@ def main():
     print("== 抓取台股 60 分鐘 K 線 ==")
     tw_rows, tw_failed = fetch_tw(tw_targets, existing_by_code, args.sleep_sec)
 
+    print("== 抓取額外代號（期貨等，原樣代號） ==")
+    extra_rows = []
+    for symbol, name in EXTRA_SYMBOLS:
+        merged, resolved = fetch_one(symbol, name, [symbol], existing_by_code, args.sleep_sec)
+        if merged is not None:
+            extra_rows.extend(merged)
+            print(f"  EXTRA {symbol} {name}: OK")
+        else:
+            tw_failed.append(symbol)
+            extra_rows.extend(existing_by_code.get(symbol, []))
+            print(f"  EXTRA {symbol} {name}: FAILED")
+
+    all_rows = tw_rows + extra_rows
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "w", encoding="utf-8-sig", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=RAW_COLUMNS)
         writer.writeheader()
-        writer.writerows(tw_rows)
+        writer.writerows(all_rows)
 
-    print(f"\n寫入 {out_path}：{len(tw_rows)} 筆")
+    print(f"\n寫入 {out_path}：{len(all_rows)} 筆（TW {len(tw_rows)}, EXTRA {len(extra_rows)}）")
     if tw_failed:
         print(f"這次抓取失敗（沿用舊資料）: {', '.join(tw_failed)}")
 
