@@ -225,3 +225,16 @@ destination: downstream definitions/raw_column_definition_YahooFinance.md
 | `volume` | float | Trading volume within the bar | yfinance `Volume` | Distributed across this bar's high-low range in `volume_profile()`, not the whole trading day |
 | `download_timestamp` | datetime | Retrieval timestamp (shared across all rows fetched for a given symbol in one run) | System | UTC `YYYY-MM-DD HH:MM:SS` |
 
+
+---
+
+## raw_yahoo_finance_consensus_daily.csv (Daily Analyst Consensus History, Append-only)
+
+**Source:** `data/reports/raw_yahoo_finance_consensus_daily.csv`
+**Data Source:** Daily snapshots of key columns from `raw_yahoo_finance_summary_latest.csv` (which is otherwise overwritten each run); initial backfill reconstructed 2026-05-29 onward from this repo's git history of that file
+**Update Frequency:** Daily append (dedup key `stock_code + forecast_asof_date`); rows are never rewritten
+**Extraction Strategy / Purpose:** The forward-EPS signal family in `GoogleSheet.Banks` (forward-PE thresholds, EPS growth, revision momentum, earnings surprise) is the only part of the buy-candidate KPI without backtest calibration — analyst estimates lack a historical time series (the Wayback pipeline's parse success rate is too low). This file turns the daily pipeline itself into that time series: after ~6-12 months of accumulation, signal-day forward-PE / estimate-revision values can be regressed against subsequent 60/120-day returns exactly like the technical sub-scores were.
+
+### Columns
+
+Subset of `raw_yahoo_finance_summary_latest.csv` columns, kept verbatim: `stock_code`, `company_name`, `market`, `forecast_asof_date` (snapshot date, row key), `earnings_0q/1q/0y/1y_avg`, `revenue_0y/1y_avg`, `eps_trend_0y/1y_current`, `eps_beat_count_4q`, `eps_surprise_avg_4q_pct`, `cross_check_status`, `process_timestamp`.

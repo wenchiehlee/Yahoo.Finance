@@ -78,6 +78,10 @@ jobs:
           SUMMARY_OUTPUT="data/reports/raw_yahoo_finance_summary_latest.csv"
           python process_group/process_cli.py --raw-csv "$RAW_OUTPUT" --output-csv "$SUMMARY_OUTPUT"
 
+      - name: Append consensus history (逐日累積，前瞻EPS訊號未來回測用)
+        run: python process_group/append_consensus_history.py
+        continue-on-error: true
+
       - name: Fetch 2y daily price history (TW + US)
         run: |
           python fetch_group/fetch_daily_price.py \
@@ -102,6 +106,7 @@ jobs:
           git add data/reports/raw_yahoo_finance_summary_latest.csv
           git add data/reports/raw_wayback_coverage_matrix.csv
           git add data/reports/raw_yahoo_finance_daily_price.csv
+          git add data/reports/raw_yahoo_finance_consensus_daily.csv
           git add data/reports/raw_yahoo_finance_intraday_60m.csv
           if git diff --staged --quiet; then
             echo "No base Yahoo report changes to commit"
