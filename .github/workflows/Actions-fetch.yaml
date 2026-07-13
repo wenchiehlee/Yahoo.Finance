@@ -175,9 +175,19 @@ jobs:
         with:
           GH_PAT: ${{ env.SYNC_PAT_GSBANKS }}
           CONFIG_PATH: .github/sync-to-GoogleSheet.Banks.yml
+          PR_LABELS: "automated-sync"
+          SKIP_PR: true
+
+      - name: Sync daily price history to MarketCostDistribution
+        if: env.SYNC_PAT_ANALYZER != ''
+        uses: BetaHuhn/repo-file-sync-action@v1
+        with:
+          GH_PAT: ${{ env.SYNC_PAT_ANALYZER }}
+          CONFIG_PATH: .github/sync-to-MarketCostDistribution.yml
           COMMIT_EACH_FILE: false
           PR_LABELS: "automated-sync"
           SKIP_PR: true
+
 
       - name: Sync skip notices
         run: |
