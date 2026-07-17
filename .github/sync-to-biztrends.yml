@@ -13,6 +13,8 @@ group:
         dest:   data/Yahoo.Finance/wayback_yahoo_finance_consensus.csv
       - source: data/reports/raw_wayback_coverage_matrix.csv
         dest:   data/Yahoo.Finance/raw_wayback_coverage_matrix.csv
+      - source: data/reports/raw_yahoo_finance_consensus_history.csv
+        dest:   data/Yahoo.Finance/raw_yahoo_finance_consensus_history.csv
       - source: raw_column_definition_YahooFinance.md
         dest:   definitions/raw_column_definition_YahooFinance.md
     repos: |
