@@ -760,6 +760,15 @@ def main():
 
     if not all_records:
         print("No historical snapshots successfully processed.")
+        if history_csv and history_csv.exists():
+            try:
+                df_hist = pd.read_csv(history_csv, encoding="utf-8")
+                if "process_timestamp" in df_hist.columns and len(df_hist) > 0:
+                    df_hist.loc[df_hist.index[-1], "process_timestamp"] = utc_now()
+                    df_hist.to_csv(history_csv, index=False, encoding="utf-8-sig")
+                    print(f"Updated process_timestamp of the latest row in {history_csv} to signal successful run.")
+            except Exception as e:
+                print(f"Warning: Failed to update process_timestamp of existing history: {e}")
         return
 
     checkpoint_records(all_records, output_csv, history_csv if not args.no_merge else None)
