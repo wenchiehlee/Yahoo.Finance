@@ -7,9 +7,12 @@ on:
     paths:
       - data/reports/raw_yahoo_finance_summary_latest.csv
       - data/reports/raw_yahoo_finance.csv
+      - data/reports/raw_yahoo_finance_consensus_history.csv
+      - definitions/raw_yahoo_finance_consensus_history_definition.md
       - raw_column_definition.md
       - .github/sync-to-biztrends.yml
       - .github/sync-to-TAIEX.yml
+      - .github/sync-to-InvestorConference.yml
       - .github/workflows/sync-up-forecast.yml
 
 concurrency:
@@ -21,6 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SYNC_PAT_MONEY: ${{ secrets.REPO_FILE_SYNC_WENCHIEHLEE_MONEY }}
+      SYNC_PAT_INVESTORCONFERENCE: ${{ secrets.REPO_FILE_SYNC_WENCHIEHLEE_MONEY }}
     steps:
       - uses: actions/checkout@v4
       - name: Sync to biztrends.TW
@@ -42,9 +46,21 @@ jobs:
           COMMIT_EACH_FILE: false
           PR_LABELS: "automated-sync"
           SKIP_PR: true
+      - name: Sync consensus history to InvestorConference
+        if: env.SYNC_PAT_INVESTORCONFERENCE != ''
+        uses: BetaHuhn/repo-file-sync-action@v1
+        with:
+          GH_PAT: ${{ env.SYNC_PAT_INVESTORCONFERENCE }}
+          CONFIG_PATH: .github/sync-to-InvestorConference.yml
+          COMMIT_EACH_FILE: false
+          PR_LABELS: "automated-sync"
+          SKIP_PR: true
       - name: Skip biztrends sync notice
         if: env.SYNC_PAT_MONEY == ''
         run: echo "::warning::REPO_FILE_SYNC_WENCHIEHLEE_MONEY is not configured; skipping biztrends.TW sync."
       - name: Skip TAIEX sync notice
         if: env.SYNC_PAT_MONEY == ''
         run: echo "::warning::REPO_FILE_SYNC_WENCHIEHLEE_MONEY is not configured; skipping TAIEX.TW sync."
+      - name: Skip InvestorConference sync notice
+        if: env.SYNC_PAT_INVESTORCONFERENCE == ''
+        run: echo "::warning::REPO_FILE_SYNC_WENCHIEHLEE_MONEY is not configured; skipping InvestorConference sync."

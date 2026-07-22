@@ -33,6 +33,7 @@ jobs:
       SYNC_PAT_ANALYZER: ${{ secrets.REPO_FILE_SYNC_WENCHIEHLEE_INVESTMENT }}
       SYNC_PAT_BIZTRENDS: ${{ secrets.REPO_FILE_SYNC_WENCHIEHLEE_MONEY }}
       SYNC_PAT_TAIEX: ${{ secrets.REPO_FILE_SYNC_WENCHIEHLEE_MONEY }}
+      SYNC_PAT_INVESTORCONFERENCE: ${{ secrets.REPO_FILE_SYNC_WENCHIEHLEE_MONEY }}
       SYNC_PAT_GSBANKS: ${{ secrets.REPO_FILE_SYNC_WJLEE1020_MONEY }}
     timeout-minutes: 360
     steps:
@@ -107,6 +108,7 @@ jobs:
           git add data/reports/raw_wayback_coverage_matrix.csv
           git add data/reports/raw_yahoo_finance_daily_price.csv
           git add data/reports/raw_yahoo_finance_consensus_daily.csv
+          git add data/reports/raw_yahoo_finance_consensus_history.csv
           git add data/reports/raw_yahoo_finance_intraday_60m.csv
           if git diff --staged --quiet; then
             echo "No base Yahoo report changes to commit"
@@ -172,6 +174,16 @@ jobs:
           PR_LABELS: "automated-sync"
           SKIP_PR: true
 
+      - name: Sync consensus history to InvestorConference
+        if: env.SYNC_PAT_INVESTORCONFERENCE != ''
+        uses: BetaHuhn/repo-file-sync-action@v1
+        with:
+          GH_PAT: ${{ env.SYNC_PAT_INVESTORCONFERENCE }}
+          CONFIG_PATH: .github/sync-to-InvestorConference.yml
+          COMMIT_EACH_FILE: false
+          PR_LABELS: "automated-sync"
+          SKIP_PR: true
+
       - name: Sync daily price history to GoogleSheet.Banks
         if: env.SYNC_PAT_GSBANKS != ''
         uses: BetaHuhn/repo-file-sync-action@v1
@@ -199,6 +211,9 @@ jobs:
           fi
           if [ -z "$SYNC_PAT_BIZTRENDS" ]; then
             echo "::warning::REPO_FILE_SYNC_WENCHIEHLEE_MONEY is not configured; skipping biztrends.TW sync."
+          fi
+          if [ -z "$SYNC_PAT_INVESTORCONFERENCE" ]; then
+            echo "::warning::REPO_FILE_SYNC_WENCHIEHLEE_MONEY is not configured; skipping InvestorConference sync."
           fi
           if [ -z "$SYNC_PAT_GSBANKS" ]; then
             echo "::warning::REPO_FILE_SYNC_WJLEE1020_MONEY is not configured; skipping GoogleSheet.Banks sync."

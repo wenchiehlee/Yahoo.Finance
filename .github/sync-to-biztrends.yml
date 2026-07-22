@@ -17,5 +17,7 @@ group:
         dest:   data/Yahoo.Finance/raw_yahoo_finance_consensus_history.csv
       - source: raw_column_definition_YahooFinance.md
         dest:   definitions/raw_column_definition_YahooFinance.md
+      - source: definitions/raw_yahoo_finance_consensus_history_definition.md
+        dest:   definitions/raw_yahoo_finance_consensus_history_definition.md
     repos: |
       wenchiehlee-money/biztrends.TW
