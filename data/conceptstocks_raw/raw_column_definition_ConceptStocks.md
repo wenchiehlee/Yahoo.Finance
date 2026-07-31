@@ -71,9 +71,9 @@ destination: https://raw.githubusercontent.com/wenchiehlee-investment/Python-Act
 | `period` | string | Period type | API response | `annual` |
 | `segment_name` | string | Segment name | API response | e.g., `Intelligent Cloud` |
 | `segment_type` | string | Segment category | API response | `product` or `geography` |
-| `revenue` | float | Revenue (USD) | API response | Raw value in USD |
+| `revenue` | float | Revenue in native currency | API response | Raw provider value; see `currency` |
 | `revenue_yoy_pct` | float | Year-over-year growth | Derived | Decimal format (0.29 = 29%) |
-| `currency` | string | Currency code | API response | Always `USD` |
+| `currency` | string | Currency code | API response | Native reported currency such as `USD`, `HKD`, or `KRW` |
 | `source` | string | Data source | System | `FMP` or `SEC` |
 
 ---
@@ -90,17 +90,17 @@ destination: https://raw.githubusercontent.com/wenchiehlee-investment/Python-Act
 | `fiscal_year` | integer | Fiscal year | API response | e.g., `2025` |
 | `end_date` | date | Fiscal period end date | API response | `YYYY-MM-DD` |
 | `period` | string | Period type | API response | `FY`, `Q1`, `Q2`, `Q3` |
-| `total_revenue` | float | Total revenue (USD) | API response | Top-line revenue |
-| `gross_profit` | float | Gross profit (USD) | API response/Derived | Revenue - COGS; derived from `total_revenue - cost_of_revenue` if GrossProfit XBRL unavailable |
-| `cost_of_revenue` | float | Cost of revenue (USD) | API response | XBRL: CostOfRevenue/CostOfGoodsAndServicesSold; `null` if unavailable |
-| `operating_income` | float | Operating income (USD) | API response | EBIT |
-| `net_income` | float | Net income (USD) | API response | Bottom-line profit |
+| `total_revenue` | float | Total revenue in native currency | API response | Top-line revenue; see `currency` |
+| `gross_profit` | float | Gross profit in native currency | API response/Derived | Revenue - COGS; derived from `total_revenue - cost_of_revenue` if GrossProfit XBRL unavailable |
+| `cost_of_revenue` | float | Cost of revenue in native currency | API response | XBRL: CostOfRevenue/CostOfGoodsAndServicesSold; `null` if unavailable |
+| `operating_income` | float | Operating income in native currency | API response | EBIT |
+| `net_income` | float | Net income in native currency | API response | Bottom-line profit |
 | `eps` | float | Earnings per share | API response | Diluted EPS |
 | `gross_margin` | float | Gross margin | Derived | `gross_profit / total_revenue` |
 | `operating_margin` | float | Operating margin | Derived | `operating_income / total_revenue` |
 | `net_margin` | float | Net margin | Derived | `net_income / total_revenue` |
 | `revenue_yoy_pct` | float | Revenue YoY growth rate | Derived | Decimal format (0.25 = 25%); `null` if prior year unavailable |
-| `currency` | string | Currency code | API response | Always `USD` |
+| `currency` | string | Currency code | API response | Native reported currency such as `USD`, `HKD`, or `KRW` |
 | `source` | string | Data source | System | `SEC`, `SEC_6K`, `AlphaVantage`, `FMP` |
 
 ---
