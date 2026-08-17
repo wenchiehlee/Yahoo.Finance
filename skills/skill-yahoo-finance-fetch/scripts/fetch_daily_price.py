@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import os
 import sys
 import time
 from datetime import datetime, timedelta, timezone
@@ -26,7 +27,21 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 import yfinance as yf
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+
+def _find_repo_root(start: Path) -> Path:
+    """Walk up from this script looking for the consuming repo root
+    (marked by configs/default.yaml), so this skill works whether it lives
+    in the skills registry or is deployed into a consumer repo at any depth."""
+    env = os.environ.get("YAHOO_FINANCE_REPO_ROOT")
+    if env:
+        return Path(env)
+    for candidate in [start, *start.parents]:
+        if (candidate / "configs" / "default.yaml").exists():
+            return candidate
+    return start
+
+
+REPO_ROOT = _find_repo_root(Path(__file__).resolve().parent)
 
 RAW_COLUMNS = [
     "stock_code", "company_name", "market", "yahoo_symbol",

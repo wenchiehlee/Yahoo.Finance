@@ -15,14 +15,30 @@ from typing import Dict, Iterable, List, Optional
 import yaml
 from dotenv import load_dotenv
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
+
+def _find_repo_root(start: Path) -> Path:
+    """Walk up from this script looking for the consuming repo root
+    (marked by configs/default.yaml), so this skill works whether it lives
+    in the skills registry or is deployed into a consumer repo at any depth."""
+    env = os.environ.get("YAHOO_FINANCE_REPO_ROOT")
+    if env:
+        return Path(env)
+    for candidate in [start, *start.parents]:
+        if (candidate / "configs" / "default.yaml").exists():
+            return candidate
+    return start
+
+
+REPO_ROOT = _find_repo_root(SCRIPT_DIR)
 
 # Load environment variables from .env file
 load_dotenv(REPO_ROOT / ".env")
 
-from fetch_group.yahoo_client import YahooFinanceClient
+from yahoo_client import YahooFinanceClient
 
 
 RAW_COLUMNS = [

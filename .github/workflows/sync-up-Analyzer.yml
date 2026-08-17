@@ -20,7 +20,7 @@ jobs:
     env:
       SYNC_PAT_ANALYZER: ${{ secrets.REPO_FILE_SYNC_WENCHIEHLEE_INVESTMENT }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Sync to Analyzer
         if: env.SYNC_PAT_ANALYZER != ''
         uses: BetaHuhn/repo-file-sync-action@v1
