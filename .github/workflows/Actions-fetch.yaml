@@ -138,8 +138,24 @@ jobs:
             echo "No Wayback progress to commit"
           else
             git commit -m "chore: update Yahoo Finance Wayback progress ($(date -u +%Y-%m-%d))"
-            git pull --rebase
-            git push
+            # This step used to hard-fail (and skip every downstream sync step) on the
+            # first rebase conflict against a concurrent push. Retry with --autostash so
+            # a single transient race doesn't throw away up to 5 hours of Wayback progress.
+            pushed=false
+            for attempt in 1 2 3; do
+              if git pull --rebase --autostash && git push; then
+                echo "Pushed Wayback progress on attempt $attempt"
+                pushed=true
+                break
+              fi
+              echo "Push attempt $attempt failed, retrying..."
+              git rebase --abort >/dev/null 2>&1 || true
+              sleep 5
+            done
+            if [ "$pushed" != "true" ]; then
+              echo "::error::Failed to push Wayback progress after 3 attempts"
+              exit 1
+            fi
           fi
 
       - name: Sync raw Yahoo report to Analyzer
