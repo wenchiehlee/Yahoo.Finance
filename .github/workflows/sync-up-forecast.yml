@@ -11,7 +11,6 @@ on:
       - definitions/raw_yahoo_finance_consensus_history_definition.md
       - raw_column_definition.md
       - .github/sync-to-biztrends.yml
-      - .github/sync-to-TAIEX.yml
       - .github/sync-to-InvestorConference.yml
       - .github/workflows/sync-up-forecast.yml
 
@@ -36,16 +35,6 @@ jobs:
           COMMIT_EACH_FILE: false
           PR_LABELS: "automated-sync"
           SKIP_PR: true
-      - name: Sync to TAIEX.TW
-        if: env.SYNC_PAT_MONEY != ''
-        continue-on-error: true
-        uses: BetaHuhn/repo-file-sync-action@v1
-        with:
-          GH_PAT: ${{ env.SYNC_PAT_MONEY }}
-          CONFIG_PATH: .github/sync-to-TAIEX.yml
-          COMMIT_EACH_FILE: false
-          PR_LABELS: "automated-sync"
-          SKIP_PR: true
       - name: Sync consensus history to InvestorConference
         if: env.SYNC_PAT_INVESTORCONFERENCE != ''
         uses: BetaHuhn/repo-file-sync-action@v1
@@ -58,9 +47,6 @@ jobs:
       - name: Skip biztrends sync notice
         if: env.SYNC_PAT_MONEY == ''
         run: echo "::warning::REPO_FILE_SYNC_WENCHIEHLEE_MONEY is not configured; skipping biztrends.TW sync."
-      - name: Skip TAIEX sync notice
-        if: env.SYNC_PAT_MONEY == ''
-        run: echo "::warning::REPO_FILE_SYNC_WENCHIEHLEE_MONEY is not configured; skipping TAIEX.TW sync."
       - name: Skip InvestorConference sync notice
         if: env.SYNC_PAT_INVESTORCONFERENCE == ''
         run: echo "::warning::REPO_FILE_SYNC_WENCHIEHLEE_MONEY is not configured; skipping InvestorConference sync."
