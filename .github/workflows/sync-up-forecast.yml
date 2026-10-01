@@ -8,6 +8,9 @@ on:
       - data/reports/raw_yahoo_finance_summary_latest.csv
       - data/reports/raw_yahoo_finance.csv
       - data/reports/raw_yahoo_finance_consensus_history.csv
+      - data/reports/raw_yahoo_finance_consensus_daily.csv
+      - data/reports/raw_yahoo_finance_daily_price.csv
+      - data/reports/raw_factset_detailed_report.csv
       - definitions/raw_yahoo_finance_consensus_history_definition.md
       - raw_column_definition.md
       - .github/sync-to-biztrends.yml
