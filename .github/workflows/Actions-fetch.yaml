@@ -37,9 +37,9 @@ jobs:
       SYNC_PAT_GSBANKS: ${{ secrets.REPO_FILE_SYNC_WJLEE1020_MONEY }}
     timeout-minutes: 360
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
           cache: "pip"
